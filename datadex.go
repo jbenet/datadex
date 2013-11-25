@@ -2,7 +2,9 @@ package main
 
 import (
   "flag"
+  "net/http"
   "fmt"
+  "log"
   "os"
 )
 
@@ -25,7 +27,9 @@ func main() {
     os.Exit(0)
   }
 
-  DOut("listening on localhost:%d\n", *port)
+  addr := fmt.Sprintf("localhost:%d", *port)
+  DOut("listening on %s\n", addr)
+  log.Fatal(http.ListenAndServe(addr, nil))
 }
 
 func DErr(format string, a ...interface{}) {
