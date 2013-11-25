@@ -1,0 +1,19 @@
+#!/bin/sh
+
+if [ "$#" != "1" ]; then
+  echo "usage: $0 <author>/<dataset>"
+  exit -1
+fi
+
+IFS='/' read -ra ADDR <<< "$1"
+
+a=${ADDR[0]}
+b=${ADDR[1]}
+t=.tar.gz
+
+cd datasets/$a
+rm -f $b/$t
+tar czf $t $b
+mv $t $b/$t
+cd ../../
+echo "packed $a/$b -> $a/$b/$t"
