@@ -28,6 +28,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	r := NewDatadexRouter()
+	http.Handle("/", r)
+
 	addr := fmt.Sprintf("localhost:%d", *port)
 	DOut("listening on %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))

@@ -6,3 +6,4 @@
 Initial version.
 
 - serve datafiles
+- serve archives
