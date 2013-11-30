@@ -10,23 +10,29 @@ func NewDatadexRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	// dataset
-	r.HandleFunc("/{author}/{dataset}", DSHomeHandler)
+	r.HandleFunc("/{author}/{dataset}", dsHomeHandler)
 	d := r.PathPrefix("/{author}/{dataset}").Subrouter()
 	d.StrictSlash(true)
-	d.HandleFunc("/", DSHomeHandler)
-	d.HandleFunc("/Datafile", DSDatafileHandler)
-	// d.HandleFunc("/refs", DSRefsHandler)
-	// d.HandleFunc("/tree/{ref}/", DSTreeHandler)
-	// d.HandleFunc("/blob/{ref}/", DSBlobHandler)
-	d.HandleFunc("/archive/", DSArchivesHandler)
-	d.HandleFunc("/archives/", DSArchivesHandler)
-	d.HandleFunc("/archive/{ref}.tar.gz", DSDownloadArchiveHandler)
-	// d.HandleFunc("/archive/{ref}.zip", DSArchiveHandler)
+	d.HandleFunc("/", dsHomeHandler)
+  d.HandleFunc("/datafile", dsDatafileHandler)
+	d.HandleFunc("/Datafile", dsDatafileHandler)
+	// d.HandleFunc("/refs", dsRefsHandler)
+	// d.HandleFunc("/tree/{ref}/", dsTreeHandler)
+	// d.HandleFunc("/blob/{ref}/", dsBlobHandler)
+	d.HandleFunc("/archive/", dsArchivesHandler)
+	d.HandleFunc("/archives/", dsArchivesHandler)
+	d.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
+	// d.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
 
-	r.HandleFunc("/", HomeHandler)
+  r.HandleFunc("/version", versionHandler)
+	r.HandleFunc("/", homeHandler)
 	return r
 }
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "datadex/1.0\n")
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "datadex -- the DATAset inDEX\n")
+}
+
+func versionHandler(w http.ResponseWriter, r *http.Request) {
+  fmt.Fprintf(w, "datadex/%s\n", Version)
 }

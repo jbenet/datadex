@@ -8,13 +8,13 @@ import (
 	"path"
 )
 
-func DSHomeHandler(w http.ResponseWriter, r *http.Request) {
-	dataset := RequestDataset(r)
+func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
+	dataset := requestDataset(r)
 	fmt.Fprintf(w, "%s\n", dataset)
 }
 
-func DSDatafileHandler(w http.ResponseWriter, r *http.Request) {
-	ds := RequestDataset(r)
+func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
+	ds := requestDataset(r)
 	df, err := data.NewDatafile(data.DatafilePath(ds))
 	if err != nil {
 		http.NotFound(w, r)
@@ -30,17 +30,17 @@ func DSDatafileHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", buf)
 }
 
-func DSArchivesHandler(w http.ResponseWriter, r *http.Request) {
+func dsArchivesHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "master\n")
 }
 
-func DSDownloadArchiveHandler(w http.ResponseWriter, r *http.Request) {
+func dsDownloadArchiveHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	nam := vars["dataset"]
 	ref := vars["ref"]
 	ext := ".tar.gz" //vars["ext"]
 
-	ds := RequestDataset(r)
+	ds := requestDataset(r)
 	path := path.Join(data.DatasetDir, ds, ext)
 
 	disp := fmt.Sprintf("attachment; filename=%s-%s%s", nam, ref, ext)
@@ -49,7 +49,7 @@ func DSDownloadArchiveHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, path)
 }
 
-func RequestDataset(r *http.Request) string {
+func requestDataset(r *http.Request) string {
 	vars := mux.Vars(r)
 	dataset := path.Join(vars["author"], vars["dataset"])
 	return dataset
