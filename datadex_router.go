@@ -24,6 +24,9 @@ func NewDatadexRouter() *mux.Router {
 	d.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
 	// d.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
 
+	// publish
+	r.HandleFunc("/publish", publishPostHandler).Methods("POST")
+
 	r.HandleFunc("/version", versionHandler)
 	r.HandleFunc("/", homeHandler)
 	return r
