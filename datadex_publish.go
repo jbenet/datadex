@@ -56,5 +56,11 @@ func publishPostHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func publishValidation(ndf *data.Datafile, odf *data.Datafile) error {
+
+  // need to validate things here.
+  // - ownership (username match)
+  // - path match
+  // - version increment (should be able to force old versions...?)
+
 	return nil
 }
