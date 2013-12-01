@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
+	"log"
 	"net/http"
 	"path"
 )
@@ -21,13 +22,18 @@ func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	buf, err := df.Marshal()
+	dsWriteDatafile(w, df)
+}
+
+func dsWriteDatafile(w http.ResponseWriter, df *data.Datafile) {
+	err := df.Write(w)
 	if err != nil {
-		http.Error(w, "Error fetching data.", 500)
+		log.Print("Error outputting Datafile: %s", err)
+		http.Error(w, "Error in datafile.", http.StatusInternalServerError)
 		return
 	}
 
-	fmt.Fprintf(w, "%s\n", buf)
+	fmt.Fprintf(w, "\n")
 }
 
 func dsArchivesHandler(w http.ResponseWriter, r *http.Request) {

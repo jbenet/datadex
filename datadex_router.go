@@ -14,7 +14,7 @@ func NewDatadexRouter() *mux.Router {
 	d := r.PathPrefix("/{author}/{dataset}").Subrouter()
 	d.StrictSlash(true)
 	d.HandleFunc("/", dsHomeHandler)
-  d.HandleFunc("/datafile", dsDatafileHandler)
+	d.HandleFunc("/datafile", dsDatafileHandler)
 	d.HandleFunc("/Datafile", dsDatafileHandler)
 	// d.HandleFunc("/refs", dsRefsHandler)
 	// d.HandleFunc("/tree/{ref}/", dsTreeHandler)
@@ -24,7 +24,7 @@ func NewDatadexRouter() *mux.Router {
 	d.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
 	// d.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
 
-  r.HandleFunc("/version", versionHandler)
+	r.HandleFunc("/version", versionHandler)
 	r.HandleFunc("/", homeHandler)
 	return r
 }
@@ -34,5 +34,5 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func versionHandler(w http.ResponseWriter, r *http.Request) {
-  fmt.Fprintf(w, "datadex/%s\n", Version)
+	fmt.Fprintf(w, "datadex/%s\n", Version)
 }
