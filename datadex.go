@@ -19,10 +19,10 @@ func main() {
 	flag.BoolVar(&DEBUG, "debug", false, "Debug mode")
 	flag.Parse()
 
-	DOut("debugging on\n")
+	dOut("debugging on\n")
 
 	if *vers {
-		Out("datadex version: %s\n", Version)
+		pOut("datadex version: %s\n", Version)
 		os.Exit(0)
 	}
 
@@ -30,26 +30,26 @@ func main() {
 	http.Handle("/", r)
 
 	addr := fmt.Sprintf("localhost:%d", *port)
-	Out("listening on %s\n", addr)
+	pOut("listening on %s\n", addr)
 	log.Fatal(http.ListenAndServe(addr, nil))
 }
 
-func Err(format string, a ...interface{}) {
+func pErr(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stderr, format, a...)
 }
 
-func Out(format string, a ...interface{}) {
+func pOut(format string, a ...interface{}) {
 	fmt.Fprintf(os.Stdout, format, a...)
 }
 
-func DErr(format string, a ...interface{}) {
+func dErr(format string, a ...interface{}) {
 	if DEBUG {
-		Err(format, a...)
+		pErr(format, a...)
 	}
 }
 
-func DOut(format string, a ...interface{}) {
+func dOut(format string, a ...interface{}) {
 	if DEBUG {
-		Out(format, a...)
+		pOut(format, a...)
 	}
 }
