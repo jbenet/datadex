@@ -32,8 +32,6 @@ func dsWriteDatafile(w http.ResponseWriter, df *data.Datafile) {
 		http.Error(w, "Error in datafile.", http.StatusInternalServerError)
 		return
 	}
-
-	fmt.Fprintf(w, "\n")
 }
 
 func dsArchivesHandler(w http.ResponseWriter, r *http.Request) {
