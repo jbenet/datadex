@@ -18,7 +18,7 @@ func NewDatadexRouter() *mux.Router {
 	d.HandleFunc("/Datafile", dsDatafileHandler)
 	// d.HandleFunc("/refs", dsRefsHandler)
 	// d.HandleFunc("/tree/{ref}/", dsTreeHandler)
-	// d.HandleFunc("/blob/{ref}/", dsBlobHandler)
+	d.HandleFunc("/blob/{ref}/", dsBlobHandler)
 	d.HandleFunc("/archive/", dsArchivesHandler)
 	d.HandleFunc("/archives/", dsArchivesHandler)
 	d.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
