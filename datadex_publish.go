@@ -23,7 +23,7 @@ func publishPostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// point to the correct Datafile location
-	ndf.Path = data.DatafilePath(ndf.Handle.Path)
+	ndf.Path = data.DatafilePath(ndf.Handle().Path())
 
 	odf, err := data.NewDatafile(ndf.Path)
 	if err == nil {
