@@ -32,6 +32,10 @@ List all the refs/branches/tags/versions in a dataset.
 
     datadex.io/<author>/<dataset>/refs
 
+Allow looking up/posting a ref:
+
+    datadex.io/<author>/<dataset>/refs/<ref>
+
 Allow browsing each ref, like github:
 
     datadex.io/<author>/<dataset>/tree/<ref>/

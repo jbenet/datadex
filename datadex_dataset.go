@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
+	"io"
 	"log"
 	"net/http"
 	"path"
@@ -43,6 +44,55 @@ func dsWriteFile(w http.ResponseWriter, df *data.SerializedFile) {
 		http.Error(w, "Error in serialized file.", http.StatusInternalServerError)
 		return
 	}
+}
+
+func dsRefsHandler(w http.ResponseWriter, r *http.Request) {
+	ds := requestDataset(r)
+	f, err := NewIndexfile(IndexfilePath(ds))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	rdr, err := data.Marshal(f.Refs)
+	if err != nil {
+		http.Error(w, "Error serializing file.", http.StatusInternalServerError)
+		return
+	}
+
+	io.Copy(w, rdr)
+}
+
+func dsRefHandler(w http.ResponseWriter, r *http.Request) {
+	ds := requestDataset(r)
+	f, err := NewIndexfile(IndexfilePath(ds))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	ref := mux.Vars(r)["ref"]
+
+	if r.Method == "POST" {
+		published, err := publishRef(f, ref)
+		if err != nil {
+			http.Error(w, "Error publishing ref.", http.StatusInternalServerError)
+			return
+		}
+
+		if !published {
+			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
+			return
+		}
+	}
+
+	time, found := f.Refs.Published[ref]
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Fprintf(w, "%s\n", time)
 }
 
 func dsArchivesHandler(w http.ResponseWriter, r *http.Request) {

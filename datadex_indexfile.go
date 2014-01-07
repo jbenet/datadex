@@ -10,17 +10,6 @@ import (
 
 const IndexfileName = "Indexfile"
 
-// serializable into YAML
-type packageRefs struct {
-
-	// All published refs are listed here. { ref-hash : iso-timestamp }
-	Published map[string]string
-
-	// Pointers to published references. { tag-name : ref-hash }
-	// `latest` is a special tag: the last ref published.
-	Tags map[string]string
-}
-
 // Indexfile is the main index file that describes a dataset. It
 // is merely a list of Refs (pointers to manifests), and a list of
 // collaborators allowed to modify the package.
@@ -30,7 +19,7 @@ type Indexfile struct {
 	data.SerializedFile "-"
 
 	Dataset string
-	Refs    packageRefs
+	Refs    data.DatasetRefs
 
 	// Other users allowed to modify the package.
 	Collaborators map[string]string
@@ -53,6 +42,7 @@ func NewIndexfile(p string) (*Indexfile, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return f, nil
 }
 
