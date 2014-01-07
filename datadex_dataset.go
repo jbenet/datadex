@@ -14,22 +14,33 @@ func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", dataset)
 }
 
-func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
+func dsIndexfileHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
-	df, err := data.NewDatafile(data.DatafilePath(ds))
+	f, err := NewIndexfile(IndexfilePath(ds))
 	if err != nil {
 		http.NotFound(w, r)
 		return
 	}
 
-	dsWriteDatafile(w, df)
+	dsWriteFile(w, &f.SerializedFile)
 }
 
-func dsWriteDatafile(w http.ResponseWriter, df *data.Datafile) {
+func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
+	ds := requestDataset(r)
+	f, err := data.NewDatafile(data.DatafilePath(ds))
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	dsWriteFile(w, &f.SerializedFile)
+}
+
+func dsWriteFile(w http.ResponseWriter, df *data.SerializedFile) {
 	err := df.Write(w)
 	if err != nil {
-		log.Print("Error outputting Datafile: %s", err)
-		http.Error(w, "Error in datafile.", http.StatusInternalServerError)
+		log.Print("Error outputting SerializedFile: %s", err)
+		http.Error(w, "Error in serialized file.", http.StatusInternalServerError)
 		return
 	}
 }

@@ -23,9 +23,8 @@ List all the packages, both for users browsing and for data and other clients.
 View information about a package, for users + clients.
 
     datadex.io/<author>/<dataset>
-    datadex.io/<author>/<dataset>/Datafile
-
-Retrieves the datafile.
+    datadex.io/<author>/<dataset>/Packagefile
+    datadex.io/<author>/<dataset>/Datafile       # latest
 
 ### package refs/versions
 

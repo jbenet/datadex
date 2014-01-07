@@ -52,7 +52,7 @@ func publishPostHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dsWriteDatafile(w, ndf)
+	dsWriteFile(w, &ndf.SerializedFile)
 }
 
 func publishValidation(ndf *data.Datafile, odf *data.Datafile) error {

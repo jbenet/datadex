@@ -14,7 +14,7 @@ func NewDatadexRouter() *mux.Router {
 	d := r.PathPrefix("/{author}/{dataset}").Subrouter()
 	d.StrictSlash(true)
 	d.HandleFunc("/", dsHomeHandler)
-	d.HandleFunc("/datafile", dsDatafileHandler)
+	d.HandleFunc("/Indexfile", dsIndexfileHandler)
 	d.HandleFunc("/Datafile", dsDatafileHandler)
 	// d.HandleFunc("/refs", dsRefsHandler)
 	// d.HandleFunc("/tree/{ref}/", dsTreeHandler)
