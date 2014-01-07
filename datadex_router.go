@@ -31,8 +31,6 @@ func NewDatadexRouter() *mux.Router {
 
 	// publish
 	rget := d.Methods("GET").Subrouter()
-	rpost := d.Methods("POST").Subrouter()
-	rpost.HandleFunc("/publish", publishPostHandler).Methods("POST")
 
 	rget.HandleFunc("/version", versionHandler)
 	rget.HandleFunc("/", homeHandler)
