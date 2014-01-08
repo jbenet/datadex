@@ -9,9 +9,20 @@ import (
 func NewDatadexRouter() *mux.Router {
 	r := mux.NewRouter()
 
-	// dataset
-	r.HandleFunc("/{author}/{dataset}", dsHomeHandler)
-	d := r.PathPrefix("/{author}/{dataset}").Subrouter()
+	// user
+	r.HandleFunc("/{author}", userHandler)
+	u := r.PathPrefix("/{author}").Subrouter()
+	u.StrictSlash(true)
+
+	u.HandleFunc("/", userHandler).Methods("GET")
+	u.HandleFunc("/user/add", userAddHandler).Methods("POST")
+	u.HandleFunc("/user/info", userInfoHandler).Methods("GET", "POST")
+	u.HandleFunc("/user/pass", userPassHandler).Methods("POST")
+	u.HandleFunc("/user/auth", userAuthHandler).Methods("POST")
+
+	// user/dataset
+	u.HandleFunc("/{dataset}", dsHomeHandler)
+	d := u.PathPrefix("/{dataset}").Subrouter()
 	d.StrictSlash(true)
 
 	dget := d.Methods("GET").Subrouter()
