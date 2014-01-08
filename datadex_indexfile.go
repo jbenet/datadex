@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/jbenet/data"
 	"path"
-	"regexp"
 	"strings"
 )
 
@@ -31,7 +30,7 @@ func IndexfilePath(dataset string) string {
 
 // Constructs a new Indexfile, based on its path: "<owner>/<name>"
 func NewIndexfile(p string) (*Indexfile, error) {
-	if !IsIndexfilePath(p) {
+	if !IndexfileNameRegexp.MatchString(p) {
 		return nil, fmt.Errorf("invalid Indexfile path: %v", p)
 	}
 
@@ -62,25 +61,3 @@ func (f *Indexfile) Packager() string {
 	return strings.Split(f.Path, "/")[2]
 }
 
-var IndexfileNameRegexp *regexp.Regexp
-
-func IsIndexfilePath(str string) bool {
-	result := IndexfileNameRegexp.MatchString(str)
-	dOut("IsPackagePath: %s? %s\n", str, result)
-	return result
-}
-
-func init() {
-	identREs := "[a-z0-9-_.]+"
-	indexREs := "^" + data.DatasetDir + "/" +
-		"((" + identREs + ")/(" + identREs + "))" + "/" +
-		IndexfileName + "$"
-
-	var err error
-	IndexfileNameRegexp, err = regexp.Compile(indexREs)
-	if err != nil {
-		pOut("%s", err)
-		pOut("%v", IndexfileNameRegexp)
-		panic("Indexfile name regex does not compile.")
-	}
-}
