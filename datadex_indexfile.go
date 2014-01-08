@@ -34,12 +34,18 @@ func NewIndexfile(p string) (*Indexfile, error) {
 		return nil, fmt.Errorf("invalid Indexfile path: %v", p)
 	}
 
-	f := &Indexfile{SerializedFile: data.SerializedFile{Path: p}}
+	f := &Indexfile{
+		SerializedFile: data.SerializedFile{Path: p},
+		Refs: data.DatasetRefs{
+			Published: map[string]string{},
+			Versions:  map[string]string{},
+		},
+	}
 	f.SerializedFile.Format = f
 
 	err := f.ReadFile()
 	if err != nil {
-		return nil, err
+		return f, err
 	}
 
 	return f, nil
@@ -54,10 +60,9 @@ func (f *Indexfile) Valid() bool {
 }
 
 func (f *Indexfile) Name() string {
-	return strings.Split(f.Path, "/")[1]
-}
-
-func (f *Indexfile) Packager() string {
 	return strings.Split(f.Path, "/")[2]
 }
 
+func (f *Indexfile) Owner() string {
+	return strings.Split(f.Path, "/")[1]
+}
