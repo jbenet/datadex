@@ -55,15 +55,10 @@ func dsRefsHandler(w http.ResponseWriter, r *http.Request) {
 
 func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
-	f, err := NewIndexfile(IndexfilePath(ds))
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
 	ref := mux.Vars(r)["ref"]
 
 	if r.Method == "POST" {
+		f, _ := NewIndexfile(IndexfilePath(ds))
 		published, err := publishRef(f, ref)
 		if err != nil {
 			http.Error(w, "Error publishing ref.", http.StatusInternalServerError)
@@ -74,6 +69,12 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
 			return
 		}
+	}
+
+	f, err := NewIndexfile(IndexfilePath(ds))
+	if err != nil {
+		http.NotFound(w, r)
+		return
 	}
 
 	time, found := f.Refs.Published[ref]
