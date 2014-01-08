@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
-	"io"
 	"net/http"
 	"path"
 )
@@ -44,13 +43,7 @@ func dsRefsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rdr, err := data.Marshal(f.Refs)
-	if err != nil {
-		http.Error(w, "Error serializing file.", http.StatusInternalServerError)
-		return
-	}
-
-	io.Copy(w, rdr)
+	httpWriteMarshal(w, f.Refs)
 }
 
 func dsRefHandler(w http.ResponseWriter, r *http.Request) {

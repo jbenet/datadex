@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
-	"io"
 	"net/http"
 	"path"
 	"strings"
@@ -81,13 +80,7 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rdr, err := data.Marshal(f.Profile)
-	if err != nil {
-		http.Error(w, "error serializing", http.StatusInternalServerError)
-		return
-	}
-
-	io.Copy(w, rdr)
+	httpWriteMarshal(w, f.Profile)
 }
 
 func userAddHandler(w http.ResponseWriter, r *http.Request) {
