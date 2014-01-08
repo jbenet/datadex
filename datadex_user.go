@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
 	"github.com/vaughan0/go-password"
-	"io/ioutil"
 	"net/http"
 	"path"
 	"strings"
@@ -77,7 +76,7 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 	f, err := NewUserfile(UserfilePath(u))
 	if err != nil {
 		pOut("%v\n", err)
-		http.Error(w, "404 user not found", http.StatusNotFound)
+		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 
@@ -85,39 +84,42 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userAddHandler(w http.ResponseWriter, r *http.Request) {
-	user := requestUser(r)
+	u := requestUser(r)
+  m := &data.NewUserMsg{}
+  err := data.Unmarshal(r.Body, m)
+  if err != nil {
+    http.Error(w, "error serializing", http.StatusInternalServerError)
+    return
+  }
 
-	email := mux.Vars(r)["email"]
-	if !data.EmailRegexp.MatchString(email) {
-		http.Error(w, "invalid email", http.StatusBadRequest)
-		return
-	}
+  if len(m.Pass) < data.PasswordMinLength {
+    http.Error(w, "invalid password", http.StatusBadRequest)
+    return
+  }
 
-	pass, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		pOut("%v\n", err)
-		http.Error(w, "error with request password", http.StatusBadRequest)
-		return
-	}
+  if !data.EmailRegexp.MatchString(m.Email) {
+    http.Error(w, "invalid email", http.StatusBadRequest)
+    return
+  }
 
-	f, err := NewUserfile(UserfilePath(user))
+	f, err := NewUserfile(UserfilePath(u))
 	if err == nil {
 		pOut("%v\n", err)
-		pOut("attempt to re-register user: %s?\n", user)
+		pOut("attempt to re-register user: %s?\n", u)
 		http.Error(w, "user exists", http.StatusForbidden)
 		return
 	}
 
 	// ok, store user.
-	f.Pass = password.Hash(string(pass[:]))
-	f.Profile.Email = email
+	f.Pass = password.Hash(string(m.Pass))
+	f.Profile.Email = m.Email
 
-	pOut("Pass1: %s\n", pass)
-	pOut("Pass2: %s\n", f.Pass)
+  // pOut("Pass1: %s\n", m.Pass)
+  // pOut("Pass2: %s\n", f.Pass)
 
 	err = f.WriteFile()
 	if err != nil {
-		pOut("%v\n", err)
+		pErr("%v\n", err)
 		http.Error(w, "error writing user file", http.StatusInternalServerError)
 		return
 	}
@@ -126,7 +128,42 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userPassHandler(w http.ResponseWriter, r *http.Request) {
+  u := requestUser(r)
+  phs := &data.NewPassMsg{}
+  err := data.Unmarshal(r.Body, phs)
+  if err != nil {
+    http.Error(w, "error serializing", http.StatusInternalServerError)
+    return
+  }
 
+  f, err := NewUserfile(UserfilePath(u))
+  if err != nil {
+    pErr("%v\n", err)
+    http.Error(w, "user not found", http.StatusNotFound)
+    return
+  }
+
+  // pOut("Current: %s\n", phs.Current)
+  // pOut("New: %s\n", phs.New)
+
+  if !password.Check(phs.Current, f.Pass) {
+    pErr("failed attempt to change password for %s\n", u)
+    http.Error(w, "user or password incorrect", http.StatusForbidden)
+    return
+  }
+
+
+  // ok, store new pass.
+  f.Pass = password.Hash(phs.New)
+
+  err = f.WriteFile()
+  if err != nil {
+    pOut("%v\n", err)
+    http.Error(w, "error writing user file", http.StatusInternalServerError)
+    return
+  }
+
+  // send notification email here...
 }
 
 func userAuthHandler(w http.ResponseWriter, r *http.Request) {
