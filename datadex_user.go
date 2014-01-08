@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
+	"github.com/vaughan0/go-password"
+	"io/ioutil"
 	"net/http"
 	"path"
 	"strings"
@@ -19,9 +21,8 @@ type Userfile struct {
 	// Public profile. Viewable and settable by user.
 	Profile data.UserProfile
 
-	// Auth things
-	Salt     string
-	PassHash string
+	// Password hash, using go-password (bcrypt).
+	Pass string
 }
 
 func UserfilePath(user string) string {
@@ -84,7 +85,44 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userAddHandler(w http.ResponseWriter, r *http.Request) {
+	user := requestUser(r)
 
+	email := mux.Vars(r)["email"]
+	if !data.EmailRegexp.MatchString(email) {
+		http.Error(w, "invalid email", http.StatusBadRequest)
+		return
+	}
+
+	pass, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		pOut("%v\n", err)
+		http.Error(w, "error with request password", http.StatusBadRequest)
+		return
+	}
+
+	f, err := NewUserfile(UserfilePath(user))
+	if err == nil {
+		pOut("%v\n", err)
+		pOut("attempt to re-register user: %s?\n", user)
+		http.Error(w, "user exists", http.StatusForbidden)
+		return
+	}
+
+	// ok, store user.
+	f.Pass = password.Hash(string(pass[:]))
+	f.Profile.Email = email
+
+	pOut("Pass1: %s\n", pass)
+	pOut("Pass2: %s\n", f.Pass)
+
+	err = f.WriteFile()
+	if err != nil {
+		pOut("%v\n", err)
+		http.Error(w, "error writing user file", http.StatusInternalServerError)
+		return
+	}
+
+	// send verification email here...
 }
 
 func userPassHandler(w http.ResponseWriter, r *http.Request) {

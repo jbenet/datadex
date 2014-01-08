@@ -15,7 +15,7 @@ func NewDatadexRouter() *mux.Router {
 	u.StrictSlash(true)
 
 	u.HandleFunc("/", userHandler).Methods("GET")
-	u.HandleFunc("/user/add", userAddHandler).Methods("POST")
+	u.HandleFunc("/user/add/{email}", userAddHandler).Methods("POST")
 	u.HandleFunc("/user/info", userInfoHandler).Methods("GET", "POST")
 	u.HandleFunc("/user/pass", userPassHandler).Methods("POST")
 	u.HandleFunc("/user/auth", userAuthHandler).Methods("POST")
