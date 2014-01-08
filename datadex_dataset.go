@@ -5,7 +5,6 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
 	"io"
-	"log"
 	"net/http"
 	"path"
 )
@@ -23,7 +22,7 @@ func dsIndexfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dsWriteFile(w, &f.SerializedFile)
+	httpWriteFile(w, &f.SerializedFile)
 }
 
 func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
@@ -34,16 +33,7 @@ func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dsWriteFile(w, &f.SerializedFile)
-}
-
-func dsWriteFile(w http.ResponseWriter, df *data.SerializedFile) {
-	err := df.Write(w)
-	if err != nil {
-		log.Print("Error outputting SerializedFile: %s", err)
-		http.Error(w, "Error in serialized file.", http.StatusInternalServerError)
-		return
-	}
+	httpWriteFile(w, &f.SerializedFile)
 }
 
 func dsRefsHandler(w http.ResponseWriter, r *http.Request) {
