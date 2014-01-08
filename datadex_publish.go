@@ -23,6 +23,11 @@ func publishRef(f *Indexfile, ref string) (bool, error) {
 		return false, fmt.Errorf("Error loading datafile. %s", err.Error())
 	}
 
+	// no dataset? must be entirely new package.
+	if len(f.Dataset) == 0 {
+		f.Dataset = df.Handle().Path()
+	}
+
 	if f.Dataset != df.Handle().Path() {
 		pErr("Attempt to publish ref (%.7s, %s) to another dataset (%s).\n",
 			ref, df.Dataset, f.Dataset)
