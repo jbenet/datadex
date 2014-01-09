@@ -6,21 +6,21 @@ import (
 	"time"
 )
 
-func publishRef(f *Indexfile, ref string) (bool, error) {
+func publishRef(f *Indexfile, ref string) error {
 	// valid ref?
 	if !data.IsHash(ref) {
-		return false, fmt.Errorf("Invalid ref: %s", ref)
+		return fmt.Errorf("Invalid ref: %s", ref)
 	}
 
 	// already there?
 	_, found := f.Refs.Published[ref]
 	if found {
-		return true, nil
+		return nil
 	}
 
 	df, err := DatafileForManifestRef(ref)
 	if err != nil {
-		return false, fmt.Errorf("Error loading datafile. %s", err.Error())
+		return fmt.Errorf("Error loading datafile. %s", err.Error())
 	}
 
 	// no dataset? must be entirely new package.
@@ -29,9 +29,8 @@ func publishRef(f *Indexfile, ref string) (bool, error) {
 	}
 
 	if f.Dataset != df.Handle().Path() {
-		pErr("Attempt to publish ref (%.7s, %s) to another dataset (%s).\n",
-			ref, df.Dataset, f.Dataset)
-		return false, nil
+		return fmt.Errorf("Attempt to publish ref (%.7s, %s) to"+
+			" another dataset (%s) forbidden.\n", ref, df.Dataset, f.Dataset)
 	}
 
 	// ok, update it now :)
@@ -39,11 +38,11 @@ func publishRef(f *Indexfile, ref string) (bool, error) {
 	f.Refs.Versions[df.Handle().Version] = ref
 	err = f.WriteFile()
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	pOut("Published %s (%.7s)\n", df.Dataset, ref)
-	return true, nil
+	return nil
 }
 
 func DatafileForManifestRef(ref string) (*data.Datafile, error) {

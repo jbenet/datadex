@@ -66,3 +66,16 @@ func (f *Indexfile) Name() string {
 func (f *Indexfile) Owner() string {
 	return strings.Split(f.Path, "/")[1]
 }
+
+func (f *Indexfile) UserCanModify(user string) bool {
+	if len(user) == 0 {
+		return false
+	}
+
+	if user == f.Owner() {
+		return true
+	}
+
+	_, exists := f.Collaborators[user]
+	return exists
+}

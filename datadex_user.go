@@ -272,3 +272,11 @@ func authenticatedUserfile(r *http.Request) (*Userfile, error) {
 	// ok, seems authenticated
 	return f, nil
 }
+
+func authenticatedUser(r *http.Request) string {
+	f, err := authenticatedUserfile(r)
+	if err != nil {
+		return ""
+	}
+	return f.User()
+}

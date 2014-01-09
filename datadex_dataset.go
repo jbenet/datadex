@@ -6,6 +6,7 @@ import (
 	"github.com/jbenet/data"
 	"net/http"
 	"path"
+	"strings"
 )
 
 func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -52,14 +53,22 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		f, _ := NewIndexfile(IndexfilePath(ds))
-		published, err := publishRef(f, ref)
-		if err != nil {
-			http.Error(w, "Error publishing ref.", http.StatusInternalServerError)
+		u := authenticatedUser(r)
+		if !f.UserCanModify(u) {
+			pErr("attempt to publish ref forbidden (%s to %s)\n", u, ds)
+			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
 			return
 		}
 
-		if !published {
-			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
+		err := publishRef(f, ref)
+		if err != nil {
+			pErr("%s\n", err)
+			switch {
+			case strings.Contains(err.Error(), "forbidden"):
+				http.Error(w, "Publishing forbidden.", http.StatusForbidden)
+			default:
+				http.Error(w, "Error publishing ref.", http.StatusInternalServerError)
+			}
 			return
 		}
 	}
