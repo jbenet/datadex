@@ -62,17 +62,20 @@ func (f *Userfile) GenerateToken() (string, error) {
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	u := requestUser(r)
+	u := mux.Vars(r)["author"]
 	fmt.Fprintf(w, "%s\n", u)
 }
 
 func userInfoHandler(w http.ResponseWriter, r *http.Request) {
-	u := requestUser(r)
-
 	if r.Method == "POST" {
-		f, _ := NewUserfile(UserfilePath(u))
+		f, err := requestedUserfileAuthenticated(r)
+		if err != nil {
+			pErr("%v\n", err)
+			http.Error(w, "forbidden", http.StatusForbidden)
+			return
+		}
 
-		err := data.Unmarshal(r.Body, &f.Profile)
+		err = data.Unmarshal(r.Body, &f.Profile)
 		if err != nil {
 			http.Error(w, "error serializing", http.StatusBadRequest)
 			return
@@ -85,7 +88,7 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	f, err := NewUserfile(UserfilePath(u))
+	f, err := requestedUserfile(r)
 	if err != nil {
 		pOut("%v\n", err)
 		http.Error(w, "user not found", http.StatusNotFound)
@@ -96,7 +99,6 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userAddHandler(w http.ResponseWriter, r *http.Request) {
-	u := requestUser(r)
 	m := &data.NewUserMsg{}
 	err := data.Unmarshal(r.Body, m)
 	if err != nil {
@@ -114,10 +116,11 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := NewUserfile(UserfilePath(u))
+	// not authenticated Userfile. ignore current auth token.
+	f, err := requestedUserfile(r)
 	if err == nil {
 		pOut("%v\n", err)
-		pOut("attempt to re-register user: %s?\n", u)
+		pOut("attempt to re-register user: %s?\n", f.User())
 		http.Error(w, "user exists", http.StatusForbidden)
 		return
 	}
@@ -140,7 +143,6 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userPassHandler(w http.ResponseWriter, r *http.Request) {
-	u := requestUser(r)
 	phs := &data.NewPassMsg{}
 	err := data.Unmarshal(r.Body, phs)
 	if err != nil {
@@ -148,7 +150,8 @@ func userPassHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := NewUserfile(UserfilePath(u))
+	// not authenticated Userfile. ignore current auth token.
+	f, err := requestedUserfile(r)
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "user not found", http.StatusNotFound)
@@ -159,7 +162,7 @@ func userPassHandler(w http.ResponseWriter, r *http.Request) {
 	// pOut("New: %s\n", phs.New)
 
 	if !password.Check(phs.Current, f.Pass) {
-		pErr("failed attempt to change password for %s\n", u)
+		pErr("failed attempt to change password for %s\n", f.User())
 		http.Error(w, "user or password incorrect", http.StatusForbidden)
 		return
 	}
@@ -181,7 +184,7 @@ func userPassHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userAuthHandler(w http.ResponseWriter, r *http.Request) {
-	u := requestUser(r)
+
 	ph := ""
 	err := data.Unmarshal(r.Body, &ph)
 	if err != nil {
@@ -189,15 +192,16 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	f, err := NewUserfile(UserfilePath(u))
+	// not authenticated Userfile. ignore current auth token.
+	f, err := requestedUserfile(r)
 	if err != nil {
 		pErr("%v\n", err)
-		http.Error(w, "user not found", http.StatusNotFound)
+		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
 	if !password.Check(ph, f.Pass) {
-		pErr("failed attempt to auth as %s\n", u)
+		pErr("failed attempt to auth as %s\n", f.User())
 		http.Error(w, "user or password incorrect", http.StatusForbidden)
 		return
 	}
@@ -224,6 +228,47 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", f.AuthToken)
 }
 
-func requestUser(r *http.Request) string {
-	return mux.Vars(r)["author"]
+func requestedUserfile(r *http.Request) (*Userfile, error) {
+	u := mux.Vars(r)["author"]
+	if len(u) == 0 {
+		return nil, fmt.Errorf("No username in request.")
+	}
+
+	return NewUserfile(UserfilePath(u))
+}
+
+func requestedUserfileAuthenticated(r *http.Request) (*Userfile, error) {
+	f, err := authenticatedUserfile(r)
+	if err != nil {
+		return nil, err
+	}
+
+	u := mux.Vars(r)["author"]
+	if u != f.User() {
+		return nil, fmt.Errorf("Authenticated user is not request user.")
+	}
+
+	// ok, seems like this one's good :)
+	return f, nil
+}
+
+func authenticatedUserfile(r *http.Request) (*Userfile, error) {
+	u := r.Header.Get(data.HttpHeaderUser)
+	t := r.Header.Get(data.HttpHeaderToken)
+	if len(u) < 1 || len(t) < 1 {
+		return nil, fmt.Errorf("No user or token provided.")
+	}
+
+	f, err := NewUserfile(UserfilePath(u))
+	if err != nil {
+		return nil, fmt.Errorf("Error retrieving Userfile. %s", err)
+	}
+
+	// user and token must match stored values.
+	if u != f.User() || t != f.AuthToken {
+		return nil, fmt.Errorf("User or token mismatch.")
+	}
+
+	// ok, seems authenticated
+	return f, nil
 }
