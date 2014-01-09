@@ -11,4 +11,16 @@ See the [roadmap](dev/roadmap.md).
 Setup:
 
 1. [install go](http://golang.org/doc/install)
-2. run `go build`
+2. Run:
+
+    git clone https://github.com/jbenet/datadex
+    cd datadex
+    make
+
+Run:
+
+    # launch the server
+    ./datadex -port 8080
+
+    # make data talk to it
+    data config index.datadex.url http://localhost:8080
