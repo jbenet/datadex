@@ -22,6 +22,10 @@ type Userfile struct {
 
 	// Password hash, using go-password (bcrypt).
 	Pass string
+
+	// Authentication token. used to verify requests.
+	// (Password change clears the token.)
+	AuthToken string
 }
 
 func UserfilePath(user string) string {
@@ -47,6 +51,14 @@ func NewUserfile(p string) (*Userfile, error) {
 
 func (f *Userfile) User() string {
 	return strings.Split(f.Path, "/")[1]
+}
+
+func (f *Userfile) GenerateToken() (string, error) {
+	s, err := randString(20)
+	if err != nil {
+		return "", err
+	}
+	return data.StringHash(s + f.User() + f.Pass)
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
@@ -85,22 +97,22 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 func userAddHandler(w http.ResponseWriter, r *http.Request) {
 	u := requestUser(r)
-  m := &data.NewUserMsg{}
-  err := data.Unmarshal(r.Body, m)
-  if err != nil {
-    http.Error(w, "error serializing", http.StatusInternalServerError)
-    return
-  }
+	m := &data.NewUserMsg{}
+	err := data.Unmarshal(r.Body, m)
+	if err != nil {
+		http.Error(w, "error serializing", http.StatusInternalServerError)
+		return
+	}
 
-  if len(m.Pass) < data.PasswordMinLength {
-    http.Error(w, "invalid password", http.StatusBadRequest)
-    return
-  }
+	if len(m.Pass) < data.PasswordMinLength {
+		http.Error(w, "invalid password", http.StatusBadRequest)
+		return
+	}
 
-  if !data.EmailRegexp.MatchString(m.Email) {
-    http.Error(w, "invalid email", http.StatusBadRequest)
-    return
-  }
+	if !data.EmailRegexp.MatchString(m.Email) {
+		http.Error(w, "invalid email", http.StatusBadRequest)
+		return
+	}
 
 	f, err := NewUserfile(UserfilePath(u))
 	if err == nil {
@@ -114,8 +126,8 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 	f.Pass = password.Hash(string(m.Pass))
 	f.Profile.Email = m.Email
 
-  // pOut("Pass1: %s\n", m.Pass)
-  // pOut("Pass2: %s\n", f.Pass)
+	// pOut("Pass1: %s\n", m.Pass)
+	// pOut("Pass2: %s\n", f.Pass)
 
 	err = f.WriteFile()
 	if err != nil {
@@ -128,46 +140,88 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userPassHandler(w http.ResponseWriter, r *http.Request) {
-  u := requestUser(r)
-  phs := &data.NewPassMsg{}
-  err := data.Unmarshal(r.Body, phs)
-  if err != nil {
-    http.Error(w, "error serializing", http.StatusInternalServerError)
-    return
-  }
+	u := requestUser(r)
+	phs := &data.NewPassMsg{}
+	err := data.Unmarshal(r.Body, phs)
+	if err != nil {
+		http.Error(w, "error serializing", http.StatusInternalServerError)
+		return
+	}
 
-  f, err := NewUserfile(UserfilePath(u))
-  if err != nil {
-    pErr("%v\n", err)
-    http.Error(w, "user not found", http.StatusNotFound)
-    return
-  }
+	f, err := NewUserfile(UserfilePath(u))
+	if err != nil {
+		pErr("%v\n", err)
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
 
-  // pOut("Current: %s\n", phs.Current)
-  // pOut("New: %s\n", phs.New)
+	// pOut("Current: %s\n", phs.Current)
+	// pOut("New: %s\n", phs.New)
 
-  if !password.Check(phs.Current, f.Pass) {
-    pErr("failed attempt to change password for %s\n", u)
-    http.Error(w, "user or password incorrect", http.StatusForbidden)
-    return
-  }
+	if !password.Check(phs.Current, f.Pass) {
+		pErr("failed attempt to change password for %s\n", u)
+		http.Error(w, "user or password incorrect", http.StatusForbidden)
+		return
+	}
 
+	// ok, store new pass.
+	f.Pass = password.Hash(phs.New)
 
-  // ok, store new pass.
-  f.Pass = password.Hash(phs.New)
+	// clear AuthToken so every client needs to re-auth
+	f.AuthToken = ""
 
-  err = f.WriteFile()
-  if err != nil {
-    pOut("%v\n", err)
-    http.Error(w, "error writing user file", http.StatusInternalServerError)
-    return
-  }
+	err = f.WriteFile()
+	if err != nil {
+		pOut("%v\n", err)
+		http.Error(w, "error writing user file", http.StatusInternalServerError)
+		return
+	}
 
-  // send notification email here...
+	// send notification email here...
 }
 
 func userAuthHandler(w http.ResponseWriter, r *http.Request) {
+	u := requestUser(r)
+	ph := ""
+	err := data.Unmarshal(r.Body, &ph)
+	if err != nil {
+		http.Error(w, "error serializing", http.StatusInternalServerError)
+		return
+	}
 
+	f, err := NewUserfile(UserfilePath(u))
+	if err != nil {
+		pErr("%v\n", err)
+		http.Error(w, "user not found", http.StatusNotFound)
+		return
+	}
+
+	if !password.Check(ph, f.Pass) {
+		pErr("failed attempt to auth as %s\n", u)
+		http.Error(w, "user or password incorrect", http.StatusForbidden)
+		return
+	}
+
+	// Generate new token, if there is none.
+	if len(f.AuthToken) == 0 {
+		f.AuthToken, err = f.GenerateToken()
+		if err != nil {
+			pErr("Error generating token. %v\n", err)
+			http.Error(w, "500 server error", http.StatusInternalServerError)
+			return
+		}
+	}
+
+	err = f.WriteFile()
+	if err != nil {
+		pErr("Error writing user file. %v\n", err)
+		http.Error(w, "500 server error", http.StatusInternalServerError)
+		return
+	}
+
+	// ok, return token
+	// (worry later about needing multiple tokens, etc.)
+	fmt.Fprintf(w, "%s", f.AuthToken)
 }
 
 func requestUser(r *http.Request) string {

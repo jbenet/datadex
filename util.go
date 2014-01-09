@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/rand"
 	"github.com/jbenet/data"
 	"io"
 	"log"
@@ -27,4 +28,13 @@ func httpWriteMarshal(w http.ResponseWriter, out interface{}) {
 	if err != nil {
 		http.Error(w, "Error writing response.", http.StatusInternalServerError)
 	}
+}
+
+func randString(length int) (string, error) {
+	b := make([]byte, length)
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", err
+	}
+	return string(b[:]), nil
 }
