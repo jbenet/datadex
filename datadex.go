@@ -14,7 +14,7 @@ var DEBUG bool
 
 func main() {
 
-	port := flag.Int("port", 9000, "Listen port")
+	port := flag.Int("port", 8080, "Listen port")
 	vers := flag.Bool("version", false, "Show version")
 	flag.BoolVar(&DEBUG, "debug", false, "Debug mode")
 	flag.Parse()
