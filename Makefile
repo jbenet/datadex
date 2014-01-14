@@ -1,8 +1,8 @@
-deps:
-	go get ./...
-
 build: deps
 	go build
+
+deps:
+	go get ./...
 
 install: build
 	go install
