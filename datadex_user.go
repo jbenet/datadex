@@ -231,6 +231,30 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s", f.AuthToken)
 }
 
+func userAwsCredHandler(w http.ResponseWriter, r *http.Request) {
+	f, err := requestedUserfileAuthenticated(r)
+	if err != nil {
+		pErr("%v\n", err)
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	if f.Disabled {
+		pErr("AwsCred request from disabled user %s forbidden.", f.User)
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	c, err := getAwsFederationCredentials(f.User())
+	if err != nil {
+		pErr("%v\n", err)
+		http.Error(w, "server error", http.StatusInternalServerError)
+	}
+
+	pOut("user awscredentials %s\n", f.User())
+	httpWriteMarshal(w, c)
+}
+
 func requestedUserfile(r *http.Request) (*Userfile, error) {
 	u := mux.Vars(r)["author"]
 	if len(u) == 0 {

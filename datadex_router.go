@@ -19,6 +19,7 @@ func NewDatadexRouter() *mux.Router {
 	u.HandleFunc("/user/info", userInfoHandler).Methods("GET", "POST")
 	u.HandleFunc("/user/pass", userPassHandler).Methods("POST")
 	u.HandleFunc("/user/auth", userAuthHandler).Methods("POST")
+	u.HandleFunc("/user/awscred", userAwsCredHandler).Methods("GET")
 
 	// user/dataset
 	u.HandleFunc("/{dataset}", dsHomeHandler)
