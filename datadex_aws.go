@@ -9,15 +9,17 @@ import (
 	"strings"
 )
 
+const AwsConfigFile = ".awsconfig"
+
 type AwsStsResponse struct {
 	Credentials *data.AwsCredentials
 }
 
 func getAwsFederationCredentials(user string) (*data.AwsCredentials, error) {
-	ak := os.Getenv("S3_ACCESS_KEY")
-	sk := os.Getenv("S3_SECRET_KEY")
-	if len(ak) < 1 || len(sk) < 1 {
-		return nil, fmt.Errorf("aws credentials not provided.")
+
+	// ensure AwsConfigFile exists
+	if _, err := os.Stat(AwsConfigFile); os.IsNotExist(err) {
+		return nil, fmt.Errorf("%s config file missing.", AwsConfigFile)
 	}
 
 	// Federated user acl debugging is annoying. Use get-session-token for now.
@@ -25,6 +27,10 @@ func getAwsFederationCredentials(user string) (*data.AwsCredentials, error) {
 	args := "sts get-session-token --duration-seconds 3600"
 
 	cmd := exec.Command("aws", strings.Split(args, " ")...)
+
+	// make the config file point to the local file.
+	cmd.Env = []string{fmt.Sprintf("AWS_CONFIG_FILE=%s", AwsConfigFile)}
+
 	out, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("aws cli error: %v", err)

@@ -30,18 +30,13 @@ ENV GOPATH /usr/local/go/
 RUN wget --no-verbose https://go.googlecode.com/files/go1.2.linux-amd64.tar.gz
 RUN tar -v -C /usr/local -xzf go1.2.linux-amd64.tar.gz
 
+# install datadex
+ADD . /datadex
+RUN cd /datadex; make
+
 # drop privileges
 USER daemon
 
-# install aws config (for aws-cli)
-RUN mkdir ~/.aws
-ADD .awsconfig ~/.aws/config
-
-# install datadex
-ADD . /datadex
-RUN cd /datadex; make install
-
 # expose port
 EXPOSE :8080
-CMD datadex -p 8080
-
+CMD ./datadex -p 8080
