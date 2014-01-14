@@ -30,13 +30,17 @@ ENV GOPATH /usr/local/go/
 RUN wget --no-verbose https://go.googlecode.com/files/go1.2.linux-amd64.tar.gz
 RUN tar -v -C /usr/local -xzf go1.2.linux-amd64.tar.gz
 
+# install data (for datadex)
+# (remove when data is public repo)
+ADD data /usr/local/go/src/github.com/jbenet/data
+
 # install datadex
-ADD . /datadex
-RUN cd /datadex; make
+ADD . /usr/local/go/src/github.com/jbenet/datadex
+RUN cd /usr/local/go/src/github.com/jbenet/datadex; make install
 
-# drop privileges
-USER daemon
+# exec context
+WORKDIR /usr/local/go/src/github.com/jbenet/datadex
+ENV DATA_CONFIG .dataconfig
+EXPOSE 8080
+CMD datadex -port 8080
 
-# expose port
-EXPOSE :8080
-CMD ./datadex -p 8080
