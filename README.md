@@ -24,3 +24,15 @@ Run:
 
     # make data talk to it
     data config index.datadex.url http://localhost:8080
+
+
+Or, using docker:
+
+    # first clone data inside (private repo workaround)
+    git clone git@github.com:jbenet/data
+
+    # build it
+    docker build -t="datadex" .
+
+    # run it
+    docker run -p=8080:8080 -d datadex
