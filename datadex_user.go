@@ -26,6 +26,9 @@ type Userfile struct {
 	// Authentication token. used to verify requests.
 	// (Password change clears the token.)
 	AuthToken string
+
+	// Disabled accounts cannot upload.
+	Disabled bool ",omitempty"
 }
 
 func UserfilePath(user string) string {

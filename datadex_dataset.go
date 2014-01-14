@@ -53,14 +53,26 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "POST" {
 		f, _ := NewIndexfile(IndexfilePath(ds))
-		u := authenticatedUser(r)
-		if !f.UserCanModify(u) {
-			pErr("attempt to publish ref forbidden (%s to %s)\n", u, ds)
+		u, err := authenticatedUserfile(r)
+		if err != nil {
+			pErr("attempt to publish ref forbidden (%s)\n", err)
 			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
 			return
 		}
 
-		err := publishRef(f, ref)
+		if u.Disabled {
+			pErr("attempt to publish ref forbidden (disabled %s to %s)\n", u.User, ds)
+			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
+			return
+		}
+
+		if !f.UserCanModify(u.User()) {
+			pErr("attempt to publish ref forbidden (%s to %s)\n", u.User, ds)
+			http.Error(w, "Publishing forbidden.", http.StatusForbidden)
+			return
+		}
+
+		err = publishRef(f, ref)
 		if err != nil {
 			pErr("%s\n", err)
 			switch {
