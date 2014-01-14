@@ -8,6 +8,8 @@ import (
 
 func NewDatadexRouter() *mux.Router {
 	r := mux.NewRouter()
+	r.HandleFunc("/", homeHandler).Methods("GET")
+	r.HandleFunc("/version", versionHandler).Methods("GET")
 
 	// user
 	r.HandleFunc("/{author}", userHandler)
@@ -40,12 +42,6 @@ func NewDatadexRouter() *mux.Router {
 	dget.HandleFunc("/archives/", dsArchivesHandler)
 	dget.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
 	// dget.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
-
-	// publish
-	rget := d.Methods("GET").Subrouter()
-
-	rget.HandleFunc("/version", versionHandler)
-	rget.HandleFunc("/", homeHandler)
 	return r
 }
 
