@@ -1,0 +1,43 @@
+      <!-- TOC -->
+      <div class="col-md-3">
+        <div class="bs-sidebar hidden-print" role="complementary">
+          <ul class="nav bs-sidenav">
+            <li><a href="#ds-download">Download</a></li>
+            <li><a href="#ds-details">Details</a></li>
+            <li><a href="#ds-readme">Readme</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- main -->
+      <div class="col-md-9" role="main">
+
+        <!-- dataset profile -->
+        <div>
+
+          <h1>{{.Owner}} / {{.Name}} @ {{.Version}}</h1>
+          <h3 class="text-muted">{{.Title}}</h3>
+
+          <p>{{.Description}}</p>
+          <br />
+
+<pre id="ds-download"><span class="text-muted"># to download, <a href="/#install">install data</a> and run:</span>
+$ data get {{.Handle}}</pre>
+          <br />
+
+          <table id="ds-details" class="table">
+            {{range .DatafileContents}}
+            <tr>
+              <th>{{.Field}}</th>
+              <td>{{.Value}}</td>
+            </tr>
+            {{end}}
+          </table>
+          <br />
+
+          <div id="ds-readme" class="well">
+          {{.Readme}}
+          </div>
+
+        </div>
+      </div>
