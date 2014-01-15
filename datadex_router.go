@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"github.com/jbenet/data"
 	"net/http"
 )
 
@@ -11,9 +12,12 @@ func NewDatadexRouter() *mux.Router {
 	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/version", versionHandler).Methods("GET")
 
+	// api
+	a := r.PathPrefix(data.ApiUrlSuffix).Subrouter()
+
 	// user
-	r.HandleFunc("/{author}", userHandler)
-	u := r.PathPrefix("/{author}").Subrouter()
+	a.HandleFunc("/{author}", userHandler)
+	u := a.PathPrefix("/{author}").Subrouter()
 	u.StrictSlash(true)
 
 	u.HandleFunc("/", userHandler).Methods("GET")
