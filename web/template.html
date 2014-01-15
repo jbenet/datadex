@@ -248,6 +248,7 @@ $ data get foo/bar@1.0</pre>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" ></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css"></script>
+<script src="/static/datadex.min.js"></script>
 <!--
 <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.1/underscore-min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"></script>
@@ -255,63 +256,6 @@ $ data get foo/bar@1.0</pre>
 <script src="//cdnjs.cloudflare.com/ajax/libs/tagmanager/3.0.0/tagmanager.js"></script>
 <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 -->
-
-<script type="text/javascript">
-(function ($) {
-
-  $(function(){
-
-    // IE10 viewport hack for Surface/desktop Windows 8 bug
-    //
-    // See Getting Started docs for more information
-    if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
-      var msViewportStyle = document.createElement("style");
-      msViewportStyle.appendChild(
-        document.createTextNode(
-          "@-ms-viewport{width:auto!important}"
-        )
-      );
-      document.getElementsByTagName("head")[0].
-        appendChild(msViewportStyle);
-    }
-
-
-    var $window = $(window)
-    var $body   = $(document.body)
-
-    var navHeight = $('.navbar').outerHeight(true) + 10
-
-    $body.scrollspy({
-      target: '.bs-sidebar',
-      offset: navHeight
-    })
-
-    $window.on('load', function () {
-      $body.scrollspy('refresh')
-    })
-
-    // back to top
-    setTimeout(function () {
-      var $sideBar = $('.bs-sidebar')
-
-      $sideBar.affix({
-        offset: {
-          top: function () {
-            var offsetTop      = $sideBar.offset().top
-            var sideBarMargin  = parseInt($sideBar.children(0).css('margin-top'), 10)
-            var navOuterHeight = $('.datadex-nav').height()
-            return (this.top = offsetTop - navOuterHeight - sideBarMargin)
-          }
-        , bottom: function () {
-            return (this.bottom = $('.bs-footer').outerHeight(true))
-          }
-        }
-      })
-    }, 100)
-})
-
-})(jQuery);
-</script>
 
 </div>
 </body>

@@ -1,5 +1,5 @@
 
-all: css static
+all: js css static
 
 .PHONY: clean test
 
@@ -28,5 +28,19 @@ build/static/%: static/%
 	@rm -f $@
 	cp $< $@
 
+# js/coffee
+js: build/static/datadex.min.js
+
+build/static/%.min.js: build/static/%.js
+	@mkdir -p `dirname $@`
+	@rm -f $@
+	node_modules/.bin/uglifyjs $< > $@
+
+build/static/datadex.js:  $(shell find js -type f | grep .js)
+	@mkdir -p `dirname $@`
+	@rm -f $@
+	cat $^ | node_modules/.bin/uglifyjs - -b indent-level=2 -o $@
+
+# dependencies
 deps:
 	npm install
