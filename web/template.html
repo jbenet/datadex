@@ -95,9 +95,68 @@
 
 <!-- Content -->
 <main class="" id="content" role="main">
-  <div class="container">
+  <div class="container datadex-content">
 
-    foo
+    <div class="row">
+
+      <!-- TOC -->
+      <div class="col-md-3">
+        <div class="bs-sidebar hidden-print" role="complementary">
+          <ul class="nav bs-sidenav">
+            <li><a href="#ds-download">Download</a></li>
+            <li><a href="#ds-details">Details</a></li>
+            <li><a href="#ds-readme">Readme</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- main -->
+      <div class="col-md-9" role="main">
+
+        <!-- dataset profile -->
+        <div>
+
+          <h1>foo / bar @ 1.0 <small>A Bar Dataset</small></h1>
+          <h3 class="text-muted">Foo's Bar Dataset is the fooest of all datasets.</h3>
+          <br />
+
+<pre id="ds-download"><span class="text-muted"># to download, run:</span>
+$ data get foo/bar@1.0</pre>
+          <br />
+
+          <table id="ds-details" class="table">
+            <tr>
+              <th>Packager</th>
+              <td>foo</td>
+            </tr>
+            <tr>
+              <th>Repository</th>
+              <td>http://github.com/foo/bar</td>
+            </tr>
+            <tr>
+              <th>Homepage</th>
+              <td>http://foo.org/bar</td>
+            </tr>
+            <tr>
+              <th>License</th>
+              <td>MIT</td>
+            </tr>
+            <tr>
+              <th>Dependencies</th>
+              <td>jbenet/foo@1.0</td>
+            </tr>
+          </table>
+          <br />
+
+          <div id="ds-readme" class="well">
+            README!!
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
 
     <!-- Footer -->
     <footer>
@@ -133,6 +192,64 @@
 <script src="//cdnjs.cloudflare.com/ajax/libs/tagmanager/3.0.0/tagmanager.js"></script>
 <script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
 -->
+
+<script type="text/javascript">
+(function ($) {
+
+  $(function(){
+
+    // IE10 viewport hack for Surface/desktop Windows 8 bug
+    //
+    // See Getting Started docs for more information
+    if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+      var msViewportStyle = document.createElement("style");
+      msViewportStyle.appendChild(
+        document.createTextNode(
+          "@-ms-viewport{width:auto!important}"
+        )
+      );
+      document.getElementsByTagName("head")[0].
+        appendChild(msViewportStyle);
+    }
+
+
+    var $window = $(window)
+    var $body   = $(document.body)
+
+    var navHeight = $('.navbar').outerHeight(true) + 10
+
+    $body.scrollspy({
+      target: '.bs-sidebar',
+      offset: navHeight
+    })
+
+    $window.on('load', function () {
+      $body.scrollspy('refresh')
+    })
+
+    // back to top
+    setTimeout(function () {
+      var $sideBar = $('.bs-sidebar')
+
+      $sideBar.affix({
+        offset: {
+          top: function () {
+            var offsetTop      = $sideBar.offset().top
+            var sideBarMargin  = parseInt($sideBar.children(0).css('margin-top'), 10)
+            var navOuterHeight = $('.datadex-nav').height()
+            alert(sideBarMargin)
+            return (this.top = offsetTop - navOuterHeight - sideBarMargin)
+          }
+        , bottom: function () {
+            return (this.bottom = $('.bs-footer').outerHeight(true))
+          }
+        }
+      })
+    }, 100)
+})
+
+})(jQuery);
+</script>
 
 </div>
 </body>
