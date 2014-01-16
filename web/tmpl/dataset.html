@@ -1,3 +1,6 @@
+{{template "header" .}}
+
+{{with .BodyPage}}
       <!-- TOC -->
       <div class="col-md-3">
         <div class="bs-sidebar hidden-print" role="complementary">
@@ -5,6 +8,8 @@
             <li><a href="#ds-download">Download</a></li>
             <li><a href="#ds-details">Details</a></li>
             <li><a href="#ds-readme">Readme</a></li>
+            <hr />
+            {{template "sidebar-common" .}}
           </ul>
         </div>
       </div>
@@ -14,30 +19,98 @@
 
         <!-- dataset profile -->
         <div>
+          <h1> <a href="/{{.D.Handle.Author}}">{{.D.Handle.Author}}</a>
+              / <a href="/{{.D.Handle.Path}}">{{.D.Handle.Name}}</a>
+              @ {{.D.Handle.Version}}</h1>
+          <h3 class="text-muted">{{.D.Tagline}}</h3>
 
-          <h1>{{.Owner}} / {{.Name}} @ {{.Version}}</h1>
-          <h3 class="text-muted">{{.Title}}</h3>
-
-          <p>{{.Description}}</p>
+          <p>{{.D.Description}}</p>
           <br />
 
 <pre id="ds-download"><span class="text-muted"># to download, <a href="/#install">install data</a> and run:</span>
-$ data get {{.Handle}}</pre>
+$ data get {{.D.Dataset}}</pre>
           <br />
 
           <table id="ds-details" class="table">
-            {{range .DatafileContents}}
             <tr>
-              <th>{{.Field}}</th>
-              <td>{{.Value}}</td>
+              <th>Dataset</th>
+              <td>{{.D.Dataset}}</td>
             </tr>
-            {{end}}
+            <tr>
+              <th>Tagline</th>
+              <td>{{.D.Tagline}}</td>
+            </tr>
+            <tr>
+              <th>Versions</th>
+              <td>
+                <ul class="no-bullet">
+                {{ $p := .D.Handle.Path}}
+                {{range $v, $h := .I.Refs.Versions}}
+                  <li><a href="/{{$p}}@{{$v}}">{{$p}}@{{$v}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Website</th>
+              <td>{{.D.Website}}</td>
+            </tr>
+            <tr>
+              <th>Repository</th>
+              <td>{{.D.Repository}}</td>
+            </tr>
+            <tr>
+              <th>License</th>
+              <td>{{.D.License}}</td>
+            </tr>
+            <tr>
+              <th>Contributors</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Contributors}}
+                  <li><a href="/{{.}}">{{.}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Dependencies</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Dependencies}}
+                  <li><a href="/{{.}}">{{.}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Sources</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Sources}}
+                  <li>{{.}}</li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
           </table>
           <br />
 
           <div id="ds-readme" class="well">
-          {{.Readme}}
+          {{if .Readme}}
+            {{.Readme}}
+          {{else}}
+          No README found. We recommend adding a README to this package to
+          help give people an overview of your dataset.
+          <br />
+          <br />
+          Any file named "README", "readme.txt", or "Readme.md" will work.
+          {{end}}
           </div>
 
         </div>
       </div>
+
+{{end}}
+
+{{template "footer" .}}

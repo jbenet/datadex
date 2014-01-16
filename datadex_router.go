@@ -69,18 +69,13 @@ func setupWebsiteRoutes(r *mux.Router) {
 	// u.HandleFunc("/user/pass", webUserPassHandler).Methods("POST")
 
 	// user/dataset
+	u.HandleFunc("/{dataset}@{ref}", webDsHomeHandler)
 	u.HandleFunc("/{dataset}", webDsHomeHandler)
-	d := u.PathPrefix("/{dataset}").Subrouter()
-	d.StrictSlash(true)
+	// d := u.PathPrefix("/{dataset}@{ref}").Subrouter()
+	// d.StrictSlash(true)
 
-	d.HandleFunc("/", dsHomeHandler)
-	d.HandleFunc("/Indexfile", dsIndexfileHandler)
-	d.HandleFunc("/Datafile", dsDatafileHandler)
-	d.HandleFunc("/refs", dsRefsHandler)
-	d.HandleFunc("/refs/{ref}", dsRefHandler).Methods("GET", "POST")
-	// dget.HandleFunc("/tree/{ref}/", dsTreeHandler)
-	d.HandleFunc("/blob/{ref}/", dsBlobHandler)
-	// dget.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
+	// d.HandleFunc("/", webDsHomeHandler)
+	// d.HandleFunc("/blob/", webDsBlobHandler)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {

@@ -55,7 +55,7 @@
               <table id="packages" class="table">
                 {{range .Packages}}
                 <tr id="{{.Handle.Author}}-{{.Handle.Name}}">
-                  <th>{{.Dataset}}</th>
+                  <th><a href="/{{.Dataset}}">{{.Dataset}}</a></th>
                   <td>
                     {{if .Tagline}}
                       {{.Tagline}}<br />

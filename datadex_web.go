@@ -91,14 +91,40 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
-	ref := mux.Vars(r)["ref"]
-	url := blobUrl(ref)
-	pOut("302 %v -> %v\n", ref, url)
+type DatasetWebPage struct {
+	I      *Indexfile
+	D      *data.Datafile
+	Readme string
+}
 
-	webRenderPage(w, r, homeTmplName, &WebPage{
-		Title:       "",
-		Description: "datadex.io - the dataset index",
+func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
+	ds := requestDataset(r)
+	ref := mux.Vars(r)["ref"]
+
+	f, err := NewIndexfile(IndexfilePath(ds))
+	if err != nil {
+		pErr("%s 404 not found\n", ds)
+		http.NotFound(w, r)
+		return
+	}
+
+	ref = f.Refs.ResolveRef(ref)
+	df, err := DatafileForManifestRef(ref)
+	if err != nil {
+		pErr("Error loading Datafile: %s\n", err.Error())
+		http.Error(w, "error loading Datafile", http.StatusInternalServerError)
+		return
+	}
+
+	webRenderPage(w, r, datasetTmplName, &WebPage{
+		Title:       f.Dataset,
+		Description: fmt.Sprintf("%s - %s", f.Dataset, f.Tagline),
+
+		BodyPage: &DatasetWebPage{
+			I:      f,
+			D:      df,
+			Readme: "",
+		},
 	})
 }
 
