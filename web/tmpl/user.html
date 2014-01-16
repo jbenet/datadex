@@ -40,18 +40,19 @@
               </div>
               {{end}}
 
-              <h3 class="text-muted">datasets</h3>
+              <h3 class="text-muted">Published Datasets</h3>
 
               <!-- Indexfiles -->
-              <br />
               <table id="user-packages" class="table">
                 {{range .Packages}}
                 <tr>
                   <th>{{.Dataset}}</th>
-                  <td>{{.Tagline}}
-
-                  {{.Refs.Versions | len}} versions.
-                  Updated {{.Refs.LastUpdated | timeago}}.
+                  <td>
+                    {{if .Tagline}}
+                      {{.Tagline}}<br />
+                    {{end}}
+                    <span class="text-muted">{{.Refs.Versions | len}} versions.
+                    Updated {{.Refs.LastUpdated | timeago}}.</span>
                   </td>
                 </tr>
                 {{end}}
