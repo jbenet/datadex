@@ -10,7 +10,7 @@
               <a href="#packages">Packages</a>
               <ul class="nav">
                 {{range .Packages}}
-                <li><a href="#{{.Handle.Author}}-{{.Handle.Name}}">{{.Dataset}}</a></li>
+                <li><a href="/{{.Dataset}}">{{.Dataset}}</a></li>
                 {{end}}
               </ul>
             </li>
