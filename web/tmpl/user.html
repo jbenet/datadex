@@ -1,3 +1,6 @@
+{{template "header" .}}
+
+{{with .BodyPage}}
       <!-- TOC -->
       <div class="col-md-3">
         <div class="bs-sidebar hidden-print" role="complementary">
@@ -53,3 +56,6 @@
 
         </div>
       </div>
+{{end}}
+
+{{template "footer" .}}

@@ -1,10 +1,17 @@
+{{define "header"}}
 <!DOCTYPE html>
 <html>
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-  <title>{{.Title}} | datadex.io</title>
+  <title>
+    {{if .Title}}
+      datadex.io / {{.Title}}
+    {{else}}
+      datadex.io - the dataset index
+    {{end}}
+  </title>
   <meta name="description" content="{{.Title}} - {{.Description}}" />
 
   <!-- CSS -->
@@ -35,7 +42,7 @@
   <meta property="og:description" content="npm-www - npmjs.org website"/>
 
   RSS
-  <link href="https://datadex.io/.atom" rel="alternate" title="{{ title }} - datadex.io" type="application/atom+xml" />
+  <link href="https://datadex.io/.atom" rel="alternate" title="{{ .Title }} - datadex.io" type="application/atom+xml" />
   -->
 
 </head>
@@ -104,7 +111,9 @@
   <div class="container datadex-content">
 
     <div class="row">
-    {{.Body}}
+{{end}}
+
+{{define "footer"}}
     </div>
 
 
@@ -122,7 +131,7 @@
         <h5>Questions, feedback, feature requests?</h5>
         <ul class="links no-bullet">
           <li><a href="https://twitter.com/intent/user?screen_name=datadex" target="_blank"><i class="icon-twitter"></i> @datadex</a></li>
-          <li><a ng-href="https://github.com/jbenet/datadex/issues/new?body={{'\n\nFrom '+currentURL|encodeURIComponent}}" target="_blank"><i class="icon-github"></i> jbenet/datadex</a></li>
+          <li><a ng-href="https://github.com/jbenet/datadex/issues/new?body='\n\nFrom '+currentURL|encodeURIComponent" target="_blank"><i class="icon-github"></i> jbenet/datadex</a></li>
           <li><a href="https://groups.google.com/forum/#!forum/data-discuss" target="_blank"><i class="icon-envelope"></i> data-discuss@googlegroups.com</a></li>
         </ul>
       </div>
@@ -147,3 +156,4 @@
 </div>
 </body>
 </html>
+{{end}}
