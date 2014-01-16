@@ -52,7 +52,7 @@ type UserWebPage struct {
 	Email    string
 	Github   string
 	Twitter  string
-	Homepage string
+	Website  string
 	Packages *data.DatafileGroupMap
 }
 
@@ -84,7 +84,7 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 			Email:    u.Profile.Email,
 			Github:   u.Profile.Github,
 			Twitter:  u.Profile.Twitter,
-			Homepage: u.Profile.Homepage,
+			Website:  u.Profile.Website,
 			Packages: pkgs,
 		},
 	})
