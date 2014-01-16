@@ -10,9 +10,9 @@ install: build
 watch:
 	-killall datadex
 	make && ./datadex &
-	@echo "[watching *.go for recompilation]"
+	@echo "[watching *.go;*.html for recompilation]"
 	# for portability, use watchmedo -- pip install watchmedo
-	@watchmedo shell-command --patterns="*.go;" --recursive --command='\
+	@watchmedo shell-command --patterns="*.go;*.html;" --recursive --command='\
 		echo; \
 		date +"%Y-%m-%d %H:%M:%S"; \
 		killall datadex; \
