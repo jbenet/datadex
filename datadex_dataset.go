@@ -121,6 +121,6 @@ func dsDownloadArchiveHandler(w http.ResponseWriter, r *http.Request) {
 
 func requestDataset(r *http.Request) string {
 	vars := mux.Vars(r)
-	dataset := path.Join(vars["author"], vars["dataset"])
+	dataset := path.Join(vars["user"], vars["dataset"])
 	return dataset
 }

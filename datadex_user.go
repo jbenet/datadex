@@ -65,7 +65,7 @@ func (f *Userfile) GenerateToken() (string, error) {
 }
 
 func userHandler(w http.ResponseWriter, r *http.Request) {
-	u := mux.Vars(r)["author"]
+	u := mux.Vars(r)["user"]
 	fmt.Fprintf(w, "%s\n", u)
 }
 
@@ -256,7 +256,7 @@ func userAwsCredHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func requestedUserfile(r *http.Request) (*Userfile, error) {
-	u := mux.Vars(r)["author"]
+	u := mux.Vars(r)["user"]
 	if len(u) == 0 {
 		return nil, fmt.Errorf("No username in request.")
 	}
@@ -270,7 +270,7 @@ func requestedUserfileAuthenticated(r *http.Request) (*Userfile, error) {
 		return nil, err
 	}
 
-	u := mux.Vars(r)["author"]
+	u := mux.Vars(r)["user"]
 	if u != f.User() {
 		return nil, fmt.Errorf("Authenticated user is not request user.")
 	}

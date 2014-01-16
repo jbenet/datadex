@@ -16,8 +16,8 @@ func NewDatadexRouter() *mux.Router {
 	a := r.PathPrefix(data.ApiUrlSuffix).Subrouter()
 
 	// user
-	a.HandleFunc("/{author}", userHandler)
-	u := a.PathPrefix("/{author}").Subrouter()
+	a.HandleFunc("/{user}", userHandler)
+	u := a.PathPrefix("/{user}").Subrouter()
 	u.StrictSlash(true)
 
 	u.HandleFunc("/", userHandler).Methods("GET")
