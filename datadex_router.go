@@ -9,9 +9,12 @@ import (
 
 func NewDatadexRouter() *mux.Router {
 	r := mux.NewRouter()
-	r.HandleFunc("/", homeHandler).Methods("GET")
-	r.HandleFunc("/version", versionHandler).Methods("GET")
+	setupApiRoutes(r)
+	setupWebsiteRoutes(r)
+	return r
+}
 
+func setupApiRoutes(r *mux.Router) {
 	// api
 	a := r.PathPrefix(data.ApiUrlSuffix).Subrouter()
 
@@ -46,7 +49,38 @@ func NewDatadexRouter() *mux.Router {
 	dget.HandleFunc("/archives/", dsArchivesHandler)
 	dget.HandleFunc("/archive/{ref}.tar.gz", dsDownloadArchiveHandler)
 	// dget.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
-	return r
+}
+
+func setupWebsiteRoutes(r *mux.Router) {
+	// serve static files
+	r.PathPrefix("/static").Handler(http.FileServer(http.Dir("web/build/")))
+
+	r.HandleFunc("/", homeHandler).Methods("GET")
+	r.HandleFunc("/version", versionHandler).Methods("GET")
+
+	// user
+	r.HandleFunc("/{user}", webUserHandler)
+	u := r.PathPrefix("/{user}").Subrouter()
+	u.StrictSlash(true)
+
+	u.HandleFunc("/", webUserHandler).Methods("GET")
+	// u.HandleFunc("/user/add", webUserAddHandler).Methods("POST")
+	// u.HandleFunc("/user/info", webUserInfoHandler).Methods("GET", "POST")
+	// u.HandleFunc("/user/pass", webUserPassHandler).Methods("POST")
+
+	// user/dataset
+	u.HandleFunc("/{dataset}", webDsHomeHandler)
+	d := u.PathPrefix("/{dataset}").Subrouter()
+	d.StrictSlash(true)
+
+	d.HandleFunc("/", dsHomeHandler)
+	d.HandleFunc("/Indexfile", dsIndexfileHandler)
+	d.HandleFunc("/Datafile", dsDatafileHandler)
+	d.HandleFunc("/refs", dsRefsHandler)
+	d.HandleFunc("/refs/{ref}", dsRefHandler).Methods("GET", "POST")
+	// dget.HandleFunc("/tree/{ref}/", dsTreeHandler)
+	d.HandleFunc("/blob/{ref}/", dsBlobHandler)
+	// dget.HandleFunc("/archive/{ref}.zip", dsArchiveHandler)
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {

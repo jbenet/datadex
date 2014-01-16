@@ -25,7 +25,7 @@
 
               <h3>{{.Name}}</h3>
 
-              <br /><i class="icon-user"></i> jbenet
+              <br /><i class="icon-user"></i> {{.Username}}
               {{if .Github}}<br /><i class="icon-github"></i> {{.Github}}{{end}}
               {{if .Twitter}}<br /><i class="icon-twitter"></i> {{.Twitter}}{{end}}
               {{if .Email}}<br /><i class="icon-envelope"></i> {{.Email}}{{end}}
@@ -40,15 +40,45 @@
               </div>
               {{end}}
 
+              <h3 class="text-muted">datasets</h3>
+
+              {{/*
+              <!-- Grouped
+              {{range $group, $pkgs := .Packages}}
+              <br />
+              <h4>{{$group}}</h4>
               <table id="user-packages" class="table">
-                {{range .Packages}}
+                {{range $pkgs}}
                 <tr>
-                  <th>{{.Name}}</th>
+                  <th>{{.Dataset}}</th>
                   <td>{{.Description}}</td>
                 </tr>
                 {{end}}
               </table>
+              {{end}}
+              -->
+
+              <!-- Single
               <br />
+              <table id="user-packages" class="table">
+                {{range $group, $pkgs := .Packages}}
+                <tr>
+                  <th>{{$group}}</th>
+                  <td>
+                  {{(index $pkgs 0).Description}}
+                  <br />
+                  Versions:
+                    <ul>
+                      {{range $pkgs}}
+                      <li>{{.Dataset}}</li>
+                      {{end}}
+                    </ul>
+                  </td>
+                </tr>
+                {{end}}
+              </table>
+              -->
+              */}}
 
             </div>
           </div>

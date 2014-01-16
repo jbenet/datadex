@@ -64,6 +64,12 @@ func (f *Userfile) GenerateToken() (string, error) {
 	return data.StringHash(s + f.User() + f.Pass)
 }
 
+func (f *Userfile) Dir() string {
+	return f.Path[0 : len(f.Path)-len(UserfileName)]
+}
+
+// Route Handlers
+
 func userHandler(w http.ResponseWriter, r *http.Request) {
 	u := mux.Vars(r)["user"]
 	fmt.Fprintf(w, "%s\n", u)
@@ -255,6 +261,8 @@ func userAwsCredHandler(w http.ResponseWriter, r *http.Request) {
 	httpWriteMarshal(w, c)
 }
 
+// requested user
+
 func requestedUserfile(r *http.Request) (*Userfile, error) {
 	u := mux.Vars(r)["user"]
 	if len(u) == 0 {
@@ -263,6 +271,8 @@ func requestedUserfile(r *http.Request) (*Userfile, error) {
 
 	return NewUserfile(UserfilePath(u))
 }
+
+// request auth stuff
 
 func requestedUserfileAuthenticated(r *http.Request) (*Userfile, error) {
 	f, err := authenticatedUserfile(r)
