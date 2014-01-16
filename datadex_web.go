@@ -17,21 +17,16 @@ const userTmplName = "user.html"
 const datasetTmplName = "dataset.html"
 
 func init() {
-	tmplPath := func(name string) string {
-		return "web/tmpl/" + name
-	}
+	webTmpl = template.New("web")
 
-	tmpls := []string{
-		tmplPath(baseTmplName),
-		tmplPath(homeTmplName),
-		tmplPath(userTmplName),
-		tmplPath(datasetTmplName),
-	}
+	// add template functions
+	webTmpl.Funcs(template.FuncMap{
+		"timeago": data.TimeAgo,
+	})
 
-	var err error
-	webTmpl, err = template.ParseFiles(tmpls...)
+	_, err := webTmpl.ParseGlob("web/tmpl/*.html")
 	if err != nil {
-		pErr("error parsing template: %v\n", err)
+		pErr("%v\n", err)
 		os.Exit(-1)
 	}
 }
