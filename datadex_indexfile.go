@@ -18,6 +18,7 @@ type Indexfile struct {
 	data.SerializedFile "-"
 
 	Dataset string
+	Tagline string // replicated for convenience. use latest published.
 	Refs    data.DatasetRefs
 
 	// Other users allowed to modify the package.

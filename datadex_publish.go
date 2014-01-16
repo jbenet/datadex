@@ -34,6 +34,7 @@ func publishRef(f *Indexfile, ref string) error {
 	}
 
 	// ok, update it now :)
+	f.Tagline = df.Tagline
 	f.Refs.Published[ref] = time.Now().UTC().String()
 	f.Refs.Versions[df.Handle().Version] = ref
 	err = f.WriteFile()
