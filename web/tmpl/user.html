@@ -42,8 +42,23 @@
 
               <h3 class="text-muted">datasets</h3>
 
+              <!-- Indexfiles -->
+              <br />
+              <table id="user-packages" class="table">
+                {{range .Packages}}
+                <tr>
+                  <th>{{.Dataset}}</th>
+                  <td>{{.Tagline}}
+
+                  {{.Refs.Versions | len}} versions.
+                  Updated {{.Refs.LastUpdated | timeago}}.
+                  </td>
+                </tr>
+                {{end}}
+              </table>
+
               {{/*
-              <!-- Grouped
+              <!-- Grouped Datafiles
               {{range $group, $pkgs := .Packages}}
               <br />
               <h4>{{$group}}</h4>
@@ -58,7 +73,7 @@
               {{end}}
               -->
 
-              <!-- Single
+              <!-- Single Datafiles
               <br />
               <table id="user-packages" class="table">
                 {{range $group, $pkgs := .Packages}}

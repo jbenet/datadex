@@ -52,6 +52,20 @@ func NewIndexfile(p string) (*Indexfile, error) {
 	return f, nil
 }
 
+// Constructs new Indexfiles, based on paths.
+func NewIndexfiles(filenames []string) ([]*Indexfile, error) {
+	files := []*Indexfile{}
+	for _, p := range filenames {
+		f, err := NewIndexfile(p)
+		if err != nil {
+			return nil, err
+		}
+
+		files = append(files, f)
+	}
+	return files, nil
+}
+
 func (f *Indexfile) Handle() *data.Handle {
 	return data.NewHandle(f.Dataset)
 }

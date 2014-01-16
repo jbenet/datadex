@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path/filepath"
 )
 
 var webTmpl *template.Template
@@ -48,7 +49,7 @@ type UserWebPage struct {
 	Github   string
 	Twitter  string
 	Website  string
-	Packages *data.DatafileGroupMap
+	Packages []*Indexfile
 }
 
 func webUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -59,14 +60,19 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dfs, err := data.DatafilesInDir(u.Dir(), true)
+	filenames, err := filepath.Glob(u.Dir() + "/*/" + IndexfileName)
 	if err != nil {
-		pErr("Error retrieving datafiles in: %s -- %v\n", u.Dir(), err)
+		pErr("Error globbing indexfiles in: %s -- %v\n", u.Dir(), err)
 		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
 		return
 	}
 
-	pkgs := data.GroupedDatafiles(dfs)
+	pkgs, err := NewIndexfiles(filenames)
+	if err != nil {
+		pErr("Error retrieving indexfiles in: %s -- %v\n", u.Dir(), err)
+		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
+		return
+	}
 
 	webRenderPage(w, r, userTmplName, &WebPage{
 		Title: u.User(),
