@@ -1,5 +1,5 @@
 
-all: js css static
+all: js css static ref
 
 .PHONY: clean test
 
@@ -40,6 +40,14 @@ build/static/datadex.js:  $(shell find js -type f | grep .js)
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	cat $^ | node_modules/.bin/uglifyjs - -b indent-level=2 -o $@
+
+# reference
+ref:
+	@echo "\n\
+	<!-- title: Reference -->\n\
+	<!-- description: Command Reference for Data & Datadex -->\n\
+	" > md/doc_ref.md
+	data commands help >> md/doc_ref.md
 
 # dependencies
 deps:
