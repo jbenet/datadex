@@ -17,7 +17,7 @@ const baseTmplName = "base.html"
 const homeTmplName = "home.html"
 const userTmplName = "user.html"
 const datasetTmplName = "dataset.html"
-const mdTmplName = "md.html"
+const docTmplName = "doc.html"
 
 func init() {
 	// templates
@@ -164,7 +164,7 @@ func webDocHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	webRenderPage(w, r, mdTmplName, &WebPage{
+	webRenderPage(w, r, docTmplName, &WebPage{
 		Title:       p.Title,
 		Description: p.Description,
 		BodyPage:    p,
