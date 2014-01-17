@@ -55,8 +55,12 @@ func setupWebsiteRoutes(r *mux.Router) {
 	// serve static files
 	r.PathPrefix("/static").Handler(http.FileServer(http.Dir("web/build/")))
 
-	r.HandleFunc("/", homeHandler).Methods("GET")
 	r.HandleFunc("/version", versionHandler).Methods("GET")
+
+	// docs
+	for _, p := range webDocPages {
+		r.HandleFunc(p.route, webDocHandler)
+	}
 
 	// user
 	r.HandleFunc("/{user}", webUserHandler)

@@ -11,24 +11,44 @@ import (
 )
 
 var webTmpl *template.Template
+var webDocPages = map[string]*DocWebPage{}
 
 const baseTmplName = "base.html"
 const homeTmplName = "home.html"
 const userTmplName = "user.html"
 const datasetTmplName = "dataset.html"
+const mdTmplName = "md.html"
 
 func init() {
+	// templates
 	webTmpl = template.New("web")
-
-	// add template functions
 	webTmpl.Funcs(template.FuncMap{
-		"timeago": data.TimeAgo,
+		"timeago":   data.TimeAgo,
+		"unescaped": func(s string) interface{} { return template.HTML(s) },
 	})
 
 	_, err := webTmpl.ParseGlob("web/tmpl/*.html")
 	if err != nil {
 		pErr("%v\n", err)
 		os.Exit(-1)
+	}
+
+	// doc pages
+	mdfiles, err := filepath.Glob("web/md/*.md")
+	if err != nil {
+		pErr("%v\n", err)
+		os.Exit(-1)
+	}
+
+	for _, f := range mdfiles {
+		p, err := ReadMarkdownWebPage(f)
+		if err != nil {
+			pErr("%v\n", err)
+			os.Exit(-1)
+		}
+
+		// register page
+		webDocPages[p.route] = p
 	}
 }
 
@@ -125,6 +145,29 @@ func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
 			D:      df,
 			Readme: "",
 		},
+	})
+}
+
+type DocWebPage struct {
+	route       string
+	Title       string
+	Description string
+	Toc         string
+	Doc         string
+}
+
+func webDocHandler(w http.ResponseWriter, r *http.Request) {
+	p, found := webDocPages[r.URL.Path]
+	if !found {
+		pErr("%s 404 doc page not found\n", p)
+		http.NotFound(w, r)
+		return
+	}
+
+	webRenderPage(w, r, mdTmplName, &WebPage{
+		Title:       p.Title,
+		Description: p.Description,
+		BodyPage:    p,
 	})
 }
 
