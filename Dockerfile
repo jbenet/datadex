@@ -52,4 +52,3 @@ WORKDIR /usr/local/go/src/github.com/jbenet/datadex
 ENV DATA_CONFIG .dataconfig
 EXPOSE 8080
 CMD datadex -port 8080
-

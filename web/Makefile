@@ -21,7 +21,6 @@ build/static/%.css: other/%.less
 
 # static
 static: $(shell find static -type f | sed 's/^/build\//') template.html
-	cp template.html build/template.html
 
 build/static/%: static/%
 	@mkdir -p `dirname $@`
