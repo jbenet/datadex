@@ -45,7 +45,7 @@ RUN cd /usr/local/go/src/github.com/jbenet/data; make deps install
 # install datadex
 ADD . /usr/local/go/src/github.com/jbenet/datadex
 RUN cd /usr/local/go/src/github.com/jbenet/datadex; make install
-RUN cd /usr/local/go/src/github.com/jbenet/datadex/web; make deps all
+RUN cd /usr/local/go/src/github.com/jbenet/datadex/web; make deps ref all
 
 # exec context
 WORKDIR /usr/local/go/src/github.com/jbenet/datadex
