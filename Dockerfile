@@ -1,7 +1,9 @@
 # datadex dockerfile
 #
 # docker build -t="jbenet/datadex" .
-# docker run -p=8080:8080 -t -i jbenet/datadex
+# docker run -p=8080:8080 \
+#   -v=/data/path:/usr/local/go/src/github.com/jbenet/datadex/datasets \
+#   -d jbenet/datadex
 
 FROM ubuntu
 
@@ -30,13 +32,20 @@ ENV GOPATH /usr/local/go/
 RUN wget --no-verbose https://go.googlecode.com/files/go1.2.linux-amd64.tar.gz
 RUN tar -v -C /usr/local -xzf go1.2.linux-amd64.tar.gz
 
+# install node + npm
+RUN add-apt-repository -y ppa:chris-lea/node.js
+RUN apt-get update
+RUN apt-get install -y nodejs
+
 # install data (for datadex)
 # (remove when data is public repo)
 ADD data /usr/local/go/src/github.com/jbenet/data
+RUN cd /usr/local/go/src/github.com/jbenet/data; make deps install
 
 # install datadex
 ADD . /usr/local/go/src/github.com/jbenet/datadex
 RUN cd /usr/local/go/src/github.com/jbenet/datadex; make install
+RUN cd /usr/local/go/src/github.com/jbenet/datadex/web; make deps all
 
 # exec context
 WORKDIR /usr/local/go/src/github.com/jbenet/datadex
