@@ -5,11 +5,15 @@
       <div class="col-sm-3">
         <div class="bs-sidebar hidden-print" role="complementary">
           <ul class="nav bs-sidenav">
-            <li><a href="#ds-download">Download</a></li>
-            <li><a href="#ds-details">Details</a></li>
-            <li><a href="#ds-readme">Readme</a></li>
-            <hr />
             {{template "sidebar-common" .}}
+            <hr />
+            <li><a href="/{{.D.Dataset}}">{{.D.Dataset}}</a>
+              <ul class="nav">
+                <li><a href="#ds-download">Download</a></li>
+                <li><a href="#ds-details">Details</a></li>
+                <li><a href="#ds-readme">Readme</a></li>
+              </ul>
+            </li>
           </ul>
         </div>
       </div>

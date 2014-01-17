@@ -5,17 +5,15 @@
       <div class="col-sm-3">
         <div class="bs-sidebar hidden-print" role="complementary">
           <ul class="nav bs-sidenav">
-            <li><a href="#bio">{{.Username}}</a></li>
-            <li>
-              <a href="#packages">Packages</a>
+            {{template "sidebar-common" .}}
+            <hr />
+            <li><a href="#bio">{{.Username}}'s datasets</a>
               <ul class="nav">
                 {{range .Packages}}
                 <li><a href="/{{.Dataset}}">{{.Dataset}}</a></li>
                 {{end}}
               </ul>
             </li>
-            <hr />
-            {{template "sidebar-common" .}}
           </ul>
         </div>
       </div>

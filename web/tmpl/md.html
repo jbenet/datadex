@@ -5,9 +5,9 @@
       <div class="col-sm-3">
         <div class="bs-sidebar hidden-print" role="complementary">
           <ul class="nav bs-sidenav">
-            {{ .Toc | unescaped }}
-            <hr />
             {{template "sidebar-common" .}}
+            <hr />
+            {{ .Toc | unescaped }}
           </ul>
         </div>
       </div>
