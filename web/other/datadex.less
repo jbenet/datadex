@@ -1,6 +1,6 @@
 body {
   position: relative; /* For scrollspy */
-  padding-top: 50px; /* Account for fixed navbar */
+  padding-top: 100px; /* Account for fixed navbar */
 }
 
 
@@ -160,16 +160,6 @@ body {
 
 }
 
-
-.datadex-content {
-  margin-top: 40px;
-
-
-  @media (min-width: 992px) {
-    margin-top: 60px;
-  }
-}
-
 /*
  * Side navigation
  * (from bootstrap docs)
@@ -185,8 +175,8 @@ body {
 
 /* First level of nav */
 .bs-sidenav {
-  margin-top: 30px;
-  margin-bottom: 30px;
+  margin-top: 0px;
+  margin-bottom: 0px;
   padding-top:    10px;
   padding-bottom: 10px;
   text-shadow: 0 1px 0 #fff;
@@ -229,6 +219,14 @@ body {
 
 /* Show and affix the side nav when space allows it */
 @media (min-width: 768px) {
+
+  .bs-sidebar {
+    overflow: hidden;
+  }
+  .bs-sidenav {
+    overflow-y: scroll;
+    margin-right: -15px;
+  }
   .bs-sidebar .nav > .active > ul {
     display: block;
   }
@@ -239,7 +237,7 @@ body {
   }
   .bs-sidebar.affix {
     position: fixed; /* Undo the static from mobile first approach */
-    top: 120px;
+    top: 100px;
   }
   .bs-sidebar.affix-bottom {
     position: absolute; /* Undo the static from mobile first approach */
@@ -248,6 +246,8 @@ body {
   .bs-sidebar.affix .bs-sidenav {
     margin-top: 0;
     margin-bottom: 0;
+    padding-top:    10px;
+    padding-bottom: 10px;
   }
 }
 @media (min-width: 1200px) {
@@ -269,12 +269,14 @@ body {
 // Footer
 
 footer {
-  margin-top: 100px;
-  margin-bottom: 30px;
+  margin-top: 30px;
+  border-top: 1px solid #e5e5e5;
+  padding-top: 10px;
   height: 100px;
+  margin-bottom: 30px;
+
   color: #777;
   text-align: center;
-  border-top: 1px solid #e5e5e5;
 }
 
 @media (min-width: 768px) {

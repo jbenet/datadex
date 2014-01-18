@@ -31,6 +31,23 @@
       $body.scrollspy('refresh')
     })
 
+    var navOffset = function() {
+      var $sideBar = $('.bs-sidebar')
+      var sideBarMargin  = parseInt($sideBar.children(0).css('margin-top'), 10)
+      var navOuterHeight = $('.datadex-nav').height()
+      return navOuterHeight + sideBarMargin
+    }
+
+    var setNavHeight = function() {
+      var wh = $(window).height()
+      var h = wh - navOffset()
+      if ($(window).width() > 768 && wh < $('.bs-sidenav').height()) {
+        $('.bs-sidenav').css("max-height", h)
+      } else {
+        $('.bs-sidenav').css("max-height", "")
+      }
+    };
+
     // back to top
     setTimeout(function () {
       var $sideBar = $('.bs-sidebar')
@@ -38,17 +55,20 @@
       $sideBar.affix({
         offset: {
           top: function () {
-            var offsetTop      = $sideBar.offset().top
-            var sideBarMargin  = parseInt($sideBar.children(0).css('margin-top'), 10)
-            var navOuterHeight = $('.datadex-nav').height()
-            return (this.top = offsetTop - navOuterHeight - sideBarMargin)
+            setNavHeight()
+            var offsetTop = $sideBar.offset().top;
+            return (this.top = offsetTop - navOffset() - 0)
           }
         , bottom: function () {
-            return (this.bottom = $('.bs-footer').outerHeight(true))
+            setNavHeight()
+            return (this.bottom = $('footer').outerHeight(true) + 20)
           }
         }
       })
+
+      setNavHeight()
     }, 100)
+
 })
 
 })(jQuery);
