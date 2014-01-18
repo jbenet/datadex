@@ -6,6 +6,23 @@ all: js css static
 clean:
 	rm -rf -- build
 
+# watching
+WATCH=*.less;*.js;static/*;
+watch:
+	make
+	@echo "[watching $(WATCH) for recompilation]"
+	@# for portability, use watchmedo -- pip install watchmedo
+	@watchmedo shell-command --patterns="$(WATCH)" --recursive --command='\
+		echo; \
+		date +"%Y-%m-%d %H:%M:%S"; \
+		make' \
+		.
+
+# dependencies
+deps:
+	npm install
+
+
 # css/less
 css: build/static/datadex.min.css
 
@@ -49,7 +66,3 @@ ref:
 	data commands help >> md/doc_ref.md
 	@sed -i '' -e's/[[:space:]]*$$//' md/doc_ref.md
 	@printf '%s\n' "`cat md/doc_ref.md`" > md/doc_ref.md
-
-# dependencies
-deps:
-	npm install
