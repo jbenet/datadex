@@ -20,7 +20,7 @@ build/static/%.css: other/%.less
 	node_modules/.bin/lessc $< $@
 
 # static
-static: $(shell find static -type f | sed 's/^/build\//') template.html
+static: $(shell find static -type f | sed 's/^/build\//')
 
 build/static/%: static/%
 	@mkdir -p `dirname $@`
