@@ -9,7 +9,7 @@ This document lists every data command (including subcommands), along with
 its help page. It can be viewed by running 'data commands help', and
 at http://datadex.io/doc/ref
 
-Generated on 2014-01-17 19:35:01.385363354 +0000 UTC.
+Generated on 2014-01-18.
 
 # data
 
