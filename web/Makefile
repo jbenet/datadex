@@ -64,5 +64,5 @@ ref:
 	<!-- description: Command Reference for Data & Datadex -->\n\
 	" > md/doc_ref.md
 	data commands help >> md/doc_ref.md
-	@sed -i '' -e's/[[:space:]]*$$//' md/doc_ref.md
+	@perl -pli -e "s/\s*$$//" md/doc_ref.md
 	@printf '%s\n' "`cat md/doc_ref.md`" > md/doc_ref.md
