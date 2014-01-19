@@ -67,6 +67,16 @@
       })
 
       setNavHeight()
+
+      // find current page links and color them.
+      $sideBar.find("[href]").each(function() {
+        if (this.href == window.location.href ||
+            this.href == window.location.pathname ||
+            this.href == window.location.pathname + window.location.hash) {
+          $(this).addClass("current-page");
+        }
+      });
+
     }, 100)
 
 })
