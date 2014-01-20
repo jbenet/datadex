@@ -25,6 +25,7 @@ func init() {
 	webTmpl.Funcs(template.FuncMap{
 		"timeago":   data.TimeAgo,
 		"unescaped": func(s string) interface{} { return template.HTML(s) },
+		"md5":       md5Hash,
 	})
 
 	_, err := webTmpl.ParseGlob("web/tmpl/*.html")
