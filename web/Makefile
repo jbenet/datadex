@@ -7,7 +7,7 @@ clean:
 	rm -rf -- build
 
 # watching
-WATCH=*.less;*.js;static/*;
+WATCH=*/other/*.less;*/js/*.js;*/static/*;
 watch:
 	make
 	@echo "[watching $(WATCH) for recompilation]"

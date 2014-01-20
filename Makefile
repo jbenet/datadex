@@ -7,7 +7,7 @@ deps:
 install: build
 	go install
 
-WATCH=*.go;*.html;*.md
+WATCH=*.go;*/web/tmpl/*.html;*/web/md/*.md
 watch:
 	-killall datadex
 	make && ./datadex &
