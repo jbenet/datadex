@@ -6,16 +6,11 @@ import (
 	"github.com/jbenet/data"
 	"github.com/vaughan0/go-password"
 	"net/http"
-	"path"
-	"strings"
 )
 
-const UserfileName = "user/info"
-
-// Userfile is the file that describes a user. It is merely a map
-// of strings. Path is "datasets/<owner>/user/info"
-type Userfile struct {
-	data.SerializedFile "-"
+// User is the object that describes a user.
+type User struct {
+	Username string
 
 	// Public profile. Viewable and settable by user.
 	Profile data.UserProfile
@@ -31,32 +26,11 @@ type Userfile struct {
 	Disabled bool ",omitempty"
 }
 
-func UserfilePath(user string) string {
-	return path.Join(data.DatasetDir, user, UserfileName)
+func (f *User) User() string {
+	return f.Username
 }
 
-// Constructs a new Userfile, based on its path: "<owner>/user/info"
-func NewUserfile(p string) (*Userfile, error) {
-	if !UserfileNameRegexp.MatchString(p) {
-		return nil, fmt.Errorf("invalid Userfile path: %v", p)
-	}
-
-	f := &Userfile{SerializedFile: data.SerializedFile{Path: p}}
-	f.SerializedFile.Format = f
-
-	err := f.ReadFile()
-	if err != nil {
-		return f, err
-	}
-
-	return f, nil
-}
-
-func (f *Userfile) User() string {
-	return strings.Split(f.Path, "/")[1]
-}
-
-func (f *Userfile) GenerateToken() (string, error) {
+func (f *User) GenerateToken() (string, error) {
 	s, err := randString(20)
 	if err != nil {
 		return "", err
@@ -64,8 +38,8 @@ func (f *Userfile) GenerateToken() (string, error) {
 	return data.StringHash(s + f.User() + f.Pass)
 }
 
-func (f *Userfile) Dir() string {
-	return f.Path[0 : len(f.Path)-len(UserfileName)]
+func (f *User) Put() error {
+	return indexDB.PutUser(f)
 }
 
 // Route Handlers
@@ -77,7 +51,7 @@ func userHandler(w http.ResponseWriter, r *http.Request) {
 
 func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		f, err := requestedUserfileAuthenticated(r)
+		f, err := requestedUserAuthenticated(r)
 		if err != nil {
 			pErr("%v\n", err)
 			http.Error(w, "forbidden", http.StatusForbidden)
@@ -90,14 +64,14 @@ func userInfoHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = f.WriteFile()
+		err = f.Put()
 		if err != nil {
 			http.Error(w, "error saving user file", http.StatusInternalServerError)
 			return
 		}
 	}
 
-	f, err := requestedUserfile(r)
+	f, err := requestedUser(r)
 	if err != nil {
 		pOut("%v\n", err)
 		http.Error(w, "user not found", http.StatusNotFound)
@@ -125,8 +99,8 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// not authenticated Userfile. ignore current auth token.
-	f, err := requestedUserfile(r)
+	// not authenticated User. ignore current auth token.
+	f, err := requestedUser(r)
 	if err == nil {
 		pOut("%v\n", err)
 		pOut("attempt to re-register user: %s?\n", f.User())
@@ -141,7 +115,7 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 	// pOut("Pass1: %s\n", m.Pass)
 	// pOut("Pass2: %s\n", f.Pass)
 
-	err = f.WriteFile()
+	err = f.Put()
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "error writing user file", http.StatusInternalServerError)
@@ -159,8 +133,8 @@ func userPassHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// not authenticated Userfile. ignore current auth token.
-	f, err := requestedUserfile(r)
+	// not authenticated User. ignore current auth token.
+	f, err := requestedUser(r)
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "user not found", http.StatusNotFound)
@@ -182,7 +156,7 @@ func userPassHandler(w http.ResponseWriter, r *http.Request) {
 	// clear AuthToken so every client needs to re-auth
 	f.AuthToken = ""
 
-	err = f.WriteFile()
+	err = f.Put()
 	if err != nil {
 		pOut("%v\n", err)
 		http.Error(w, "error writing user file", http.StatusInternalServerError)
@@ -201,8 +175,8 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// not authenticated Userfile. ignore current auth token.
-	f, err := requestedUserfile(r)
+	// not authenticated User. ignore current auth token.
+	f, err := requestedUser(r)
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "not found", http.StatusNotFound)
@@ -225,7 +199,7 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err = f.WriteFile()
+	err = f.Put()
 	if err != nil {
 		pErr("Error writing user file. %v\n", err)
 		http.Error(w, "500 server error", http.StatusInternalServerError)
@@ -238,7 +212,7 @@ func userAuthHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func userAwsCredHandler(w http.ResponseWriter, r *http.Request) {
-	f, err := requestedUserfileAuthenticated(r)
+	f, err := requestedUserAuthenticated(r)
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "forbidden", http.StatusForbidden)
@@ -263,19 +237,23 @@ func userAwsCredHandler(w http.ResponseWriter, r *http.Request) {
 
 // requested user
 
-func requestedUserfile(r *http.Request) (*Userfile, error) {
+func requestedUser(r *http.Request) (*User, error) {
 	u := mux.Vars(r)["user"]
 	if len(u) == 0 {
 		return nil, fmt.Errorf("No username in request.")
 	}
 
-	return NewUserfile(UserfilePath(u))
+	user, err := indexDB.GetUser(u)
+	if user == nil {
+		user = &User{Username: u}
+	}
+	return user, err
 }
 
 // request auth stuff
 
-func requestedUserfileAuthenticated(r *http.Request) (*Userfile, error) {
-	f, err := authenticatedUserfile(r)
+func requestedUserAuthenticated(r *http.Request) (*User, error) {
+	f, err := authenticatedUser(r)
 	if err != nil {
 		return nil, err
 	}
@@ -289,16 +267,16 @@ func requestedUserfileAuthenticated(r *http.Request) (*Userfile, error) {
 	return f, nil
 }
 
-func authenticatedUserfile(r *http.Request) (*Userfile, error) {
+func authenticatedUser(r *http.Request) (*User, error) {
 	u := r.Header.Get(data.HttpHeaderUser)
 	t := r.Header.Get(data.HttpHeaderToken)
 	if len(u) < 1 || len(t) < 1 {
 		return nil, fmt.Errorf("No user or token provided.")
 	}
 
-	f, err := NewUserfile(UserfilePath(u))
+	f, err := indexDB.GetUser(u)
 	if err != nil {
-		return nil, fmt.Errorf("Error retrieving Userfile. %s", err)
+		return nil, fmt.Errorf("Error retrieving User. %s", err)
 	}
 
 	// user and token must match stored values.
@@ -310,8 +288,8 @@ func authenticatedUserfile(r *http.Request) (*Userfile, error) {
 	return f, nil
 }
 
-func authenticatedUser(r *http.Request) string {
-	f, err := authenticatedUserfile(r)
+func authenticatedUsername(r *http.Request) string {
+	f, err := authenticatedUser(r)
 	if err != nil {
 		return ""
 	}

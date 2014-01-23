@@ -74,23 +74,24 @@ type UserWebPage struct {
 }
 
 func webUserHandler(w http.ResponseWriter, r *http.Request) {
-	u, err := requestedUserfile(r)
+	u, err := requestedUser(r)
 	if err != nil {
 		pErr("%v\n", err)
 		http.Error(w, "user not found", http.StatusNotFound)
 		return
 	}
 
-	filenames, err := filepath.Glob(u.Dir() + "/*/" + IndexfileName)
+	dir := data.DatasetDir + "/" + u.Username
+	filenames, err := filepath.Glob(dir + "/*/" + IndexfileName)
 	if err != nil {
-		pErr("Error globbing indexfiles in: %s -- %v\n", u.Dir(), err)
+		pErr("Error globbing indexfiles in: %s -- %v\n", dir, err)
 		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
 		return
 	}
 
 	pkgs, err := NewIndexfiles(filenames)
 	if err != nil {
-		pErr("Error retrieving indexfiles in: %s -- %v\n", u.Dir(), err)
+		pErr("Error retrieving indexfiles in: %s -- %v\n", dir, err)
 		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
 		return
 	}
@@ -174,7 +175,7 @@ func webDocHandler(w http.ResponseWriter, r *http.Request) {
 
 func webRenderPage(w http.ResponseWriter, r *http.Request,
 	tmpl string, p *WebPage) {
-	u := authenticatedUser(r)
+	u := authenticatedUsername(r)
 	if len(u) > 0 {
 		p.LoggedIn = true
 		p.Username = u

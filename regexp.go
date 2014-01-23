@@ -6,16 +6,13 @@ import (
 )
 
 var IndexfileNameRegexp *regexp.Regexp
-var UserfileNameRegexp *regexp.Regexp
 
 func init() {
 	identRE := "[A-Za-z0-9-_.]+"
 	pathRE := "((" + identRE + ")/(" + identRE + "))"
 	indexRE := "^" + data.DatasetDir + "/" + pathRE + "/" + IndexfileName + "$"
-	userRE := "^" + data.DatasetDir + "/" + identRE + "/" + UserfileName + "$"
 
 	IndexfileNameRegexp = compileRegexp(indexRE)
-	UserfileNameRegexp = compileRegexp(userRE)
 }
 
 func compileRegexp(s string) *regexp.Regexp {
