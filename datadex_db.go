@@ -129,33 +129,6 @@ func (i *IndexDB) ColGetId(col *db.Col, id uint64, out interface{}) error {
 	return JsonMarshalUnmarshal(&wrap, out)
 }
 
-func (i *IndexDB) GetUser(name string) (*User, error) {
-	if len(name) < 1 {
-		return nil, fmt.Errorf("Cannot get user without username.")
-	}
-
-	u := &User{}
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, name)
-	id, err := i.ColFindId(i.users, q)
-	if err != nil {
-		return nil, err
-	}
-	err = i.ColGetId(i.users, id, &u)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
-}
-
-func (i *IndexDB) PutUser(user *User) error {
-	if len(user.Username) < 1 {
-		return fmt.Errorf("Cannot put user without username.")
-	}
-
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, user.Username)
-	return i.ColPutQuery(i.users, q, user)
-}
-
 func (i *IndexDB) CreateCollection(name string, idx []string) (*db.Col, error) {
 	// Create tables, if needed.
 	col := i.db.Use(name)
@@ -192,4 +165,33 @@ func JsonMarshalUnmarshal(in interface{}, out interface{}) error {
 		return err
 	}
 	return json.Unmarshal(data, out)
+}
+
+// Datadex specific stuff:
+
+func (i *IndexDB) GetUser(name string) (*User, error) {
+	if len(name) < 1 {
+		return nil, fmt.Errorf("Cannot get user without username.")
+	}
+
+	u := &User{}
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, name)
+	id, err := i.ColFindId(i.users, q)
+	if err != nil {
+		return nil, err
+	}
+	err = i.ColGetId(i.users, id, &u)
+	if err != nil {
+		return nil, err
+	}
+	return u, nil
+}
+
+func (i *IndexDB) PutUser(user *User) error {
+	if len(user.Username) < 1 {
+		return fmt.Errorf("Cannot put user without username.")
+	}
+
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, user.Username)
+	return i.ColPutQuery(i.users, q, user)
 }

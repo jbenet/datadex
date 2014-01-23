@@ -9,7 +9,6 @@ import (
 	"strings"
 )
 
-
 // This is the object that describes a dataset.
 // It is merely a list of Refs (pointers to manifests), and a list of
 // collaborators allowed to modify the package.
@@ -53,7 +52,6 @@ func (f *Dataset) UserCanModify(user string) bool {
 	_, exists := f.Collaborators[user]
 	return exists
 }
-
 
 // Routes
 
