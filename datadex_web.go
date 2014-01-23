@@ -70,7 +70,7 @@ type UserWebPage struct {
 	Github   string
 	Twitter  string
 	Website  string
-	Packages []*Indexfile
+	Packages []*Dataset
 }
 
 func webUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -81,17 +81,9 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	dir := data.DatasetDir + "/" + u.Username
-	filenames, err := filepath.Glob(dir + "/*/" + IndexfileName)
+	pkgs, err := indexDB.GetUserDatasets(u.Username)
 	if err != nil {
-		pErr("Error globbing indexfiles in: %s -- %v\n", dir, err)
-		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
-		return
-	}
-
-	pkgs, err := NewIndexfiles(filenames)
-	if err != nil {
-		pErr("Error retrieving indexfiles in: %s -- %v\n", dir, err)
+		pErr("Error retrieving datasets for %s -- %v\n", u.Username, err)
 		http.Error(w, "error retrieving packages", http.StatusInternalServerError)
 		return
 	}
@@ -114,7 +106,7 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type DatasetWebPage struct {
-	I      *Indexfile
+	I      *Dataset
 	D      *data.Datafile
 	Readme string
 }
@@ -123,7 +115,7 @@ func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
 	ref := mux.Vars(r)["ref"]
 
-	f, err := NewIndexfile(IndexfilePath(ds))
+	f, err := indexDB.GetDataset(ds)
 	if err != nil {
 		pErr("%s 404 not found\n", ds)
 		http.NotFound(w, r)

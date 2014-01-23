@@ -14,17 +14,6 @@ func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%s\n", dataset)
 }
 
-func dsIndexfileHandler(w http.ResponseWriter, r *http.Request) {
-	ds := requestDataset(r)
-	f, err := NewIndexfile(IndexfilePath(ds))
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	httpWriteFile(w, &f.SerializedFile)
-}
-
 func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
 	f, err := data.NewDatafile(data.DatafilePath(ds))
@@ -38,7 +27,7 @@ func dsDatafileHandler(w http.ResponseWriter, r *http.Request) {
 
 func dsRefsHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
-	f, err := NewIndexfile(IndexfilePath(ds))
+	f, err := indexDB.GetDataset(ds)
 	if err != nil {
 		http.NotFound(w, r)
 		return
@@ -52,7 +41,15 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 	ref := mux.Vars(r)["ref"]
 
 	if r.Method == "POST" {
-		f, _ := NewIndexfile(IndexfilePath(ds))
+		f, err := indexDB.GetDataset(ds)
+		if err != nil {
+			if err == ErrNotFound {
+				f = NewDataset(ds)
+			} else {
+				pErr("error getting dataset (%s)\n", err)
+				http.Error(w, "Error getting dataset.", http.StatusInternalServerError)
+			}
+		}
 		u, err := authenticatedUser(r)
 		if err != nil {
 			pErr("attempt to publish ref forbidden (%s)\n", err)
@@ -85,7 +82,7 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	f, err := NewIndexfile(IndexfilePath(ds))
+	f, err := indexDB.GetDataset(ds)
 	if err != nil {
 		http.NotFound(w, r)
 		return

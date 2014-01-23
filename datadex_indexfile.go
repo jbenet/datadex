@@ -1,23 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"github.com/jbenet/data"
-	"path"
 	"strings"
 )
 
-const IndexfileName = "Indexfile"
-
-// Indexfile is the main index file that describes a dataset. It
-// is merely a list of Refs (pointers to manifests), and a list of
+// This is the object that describes a dataset.
+// It is merely a list of Refs (pointers to manifests), and a list of
 // collaborators allowed to modify the package.
-//
-// Path is "datasets/<owner>/<name>/Indexfile"
-type Indexfile struct {
-	data.SerializedFile "-"
-
-	Dataset string
+type Dataset struct {
+	Path    string
+	Name    string
+	Owner   string
 	Tagline string // replicated for convenience. use latest published.
 	Refs    data.DatasetRefs
 
@@ -25,69 +19,29 @@ type Indexfile struct {
 	Collaborators map[string]string
 }
 
-func IndexfilePath(dataset string) string {
-	return path.Join(data.DatasetDir, dataset, IndexfileName)
+func NewDataset(dataset string) *Dataset {
+	parts := strings.Split(dataset, "/")
+	return &Dataset{
+		Path:  dataset,
+		Name:  parts[0],
+		Owner: parts[1],
+	}
 }
 
-// Constructs a new Indexfile, based on its path: "<owner>/<name>"
-func NewIndexfile(p string) (*Indexfile, error) {
-	if !IndexfileNameRegexp.MatchString(p) {
-		return nil, fmt.Errorf("invalid Indexfile path: %v", p)
-	}
-
-	f := &Indexfile{
-		SerializedFile: data.SerializedFile{Path: p},
-		Refs: data.DatasetRefs{
-			Published: map[string]string{},
-			Versions:  map[string]string{},
-		},
-	}
-	f.SerializedFile.Format = f
-
-	err := f.ReadFile()
-	if err != nil {
-		return f, err
-	}
-
-	return f, nil
+func (f *Dataset) Handle() *data.Handle {
+	return data.NewHandle(f.Path)
 }
 
-// Constructs new Indexfiles, based on paths.
-func NewIndexfiles(filenames []string) ([]*Indexfile, error) {
-	files := []*Indexfile{}
-	for _, p := range filenames {
-		f, err := NewIndexfile(p)
-		if err != nil {
-			return nil, err
-		}
-
-		files = append(files, f)
-	}
-	return files, nil
-}
-
-func (f *Indexfile) Handle() *data.Handle {
-	return data.NewHandle(f.Dataset)
-}
-
-func (f *Indexfile) Valid() bool {
+func (f *Dataset) Valid() bool {
 	return f.Handle().Valid()
 }
 
-func (f *Indexfile) Name() string {
-	return strings.Split(f.Path, "/")[2]
-}
-
-func (f *Indexfile) Owner() string {
-	return strings.Split(f.Path, "/")[1]
-}
-
-func (f *Indexfile) UserCanModify(user string) bool {
+func (f *Dataset) UserCanModify(user string) bool {
 	if len(user) == 0 {
 		return false
 	}
 
-	if user == f.Owner() {
+	if user == f.Owner {
 		return true
 	}
 

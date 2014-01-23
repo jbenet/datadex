@@ -39,7 +39,6 @@ func setupApiRoutes(r *mux.Router) {
 	// dpost := d.Methods("POST").Subrouter()
 
 	dget.HandleFunc("/", dsHomeHandler)
-	dget.HandleFunc("/Indexfile", dsIndexfileHandler)
 	dget.HandleFunc("/Datafile", dsDatafileHandler)
 	dget.HandleFunc("/refs", dsRefsHandler)
 	d.HandleFunc("/refs/{ref}", dsRefHandler).Methods("GET", "POST")

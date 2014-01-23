@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func publishRef(f *Indexfile, ref string) error {
+func publishRef(f *Dataset, ref string) error {
 	// valid ref?
 	if !data.IsHash(ref) {
 		return fmt.Errorf("Invalid ref: %s", ref)
@@ -24,20 +24,20 @@ func publishRef(f *Indexfile, ref string) error {
 	}
 
 	// no dataset? must be entirely new package.
-	if len(f.Dataset) == 0 {
-		f.Dataset = df.Handle().Path()
+	if len(f.Path) == 0 {
+		f.Path = df.Handle().Path()
 	}
 
-	if f.Dataset != df.Handle().Path() {
+	if f.Path != df.Handle().Path() {
 		return fmt.Errorf("Attempt to publish ref (%.7s, %s) to"+
-			" another dataset (%s) forbidden.\n", ref, df.Dataset, f.Dataset)
+			" another dataset (%s) forbidden.\n", ref, df.Dataset, f.Path)
 	}
 
 	// ok, update it now :)
 	f.Tagline = df.Tagline
 	f.Refs.Published[ref] = time.Now().UTC().String()
 	f.Refs.Versions[df.Handle().Version] = ref
-	err = f.WriteFile()
+	err = f.Put()
 	if err != nil {
 		return err
 	}
