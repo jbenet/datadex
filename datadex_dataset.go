@@ -14,8 +14,8 @@ import (
 // collaborators allowed to modify the package.
 type Dataset struct {
 	Path    string
-	Name    string
 	Owner   string
+	Name    string
 	Tagline string // replicated for convenience. use latest published.
 	Refs    data.DatasetRefs
 
@@ -27,8 +27,12 @@ func NewDataset(dataset string) *Dataset {
 	parts := strings.Split(dataset, "/")
 	return &Dataset{
 		Path:  dataset,
-		Name:  parts[0],
-		Owner: parts[1],
+		Owner: parts[0],
+		Name:  parts[1],
+		Refs: data.DatasetRefs{
+			Published: map[string]string{},
+			Versions:  map[string]string{},
+		},
 	}
 }
 
@@ -37,7 +41,9 @@ func (f *Dataset) Handle() *data.Handle {
 }
 
 func (f *Dataset) Valid() bool {
-	return f.Handle().Valid()
+	h := f.Handle()
+	return h.Valid() && h.Author == f.Owner && h.Name == f.Name &&
+		h.Path() == f.Path
 }
 
 func (f *Dataset) UserCanModify(user string) bool {
@@ -51,6 +57,10 @@ func (f *Dataset) UserCanModify(user string) bool {
 
 	_, exists := f.Collaborators[user]
 	return exists
+}
+
+func (f *Dataset) Put() error {
+	return indexDB.PutDataset(f)
 }
 
 // Routes

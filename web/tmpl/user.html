@@ -10,7 +10,7 @@
             <li><a href="#bio">{{.Username}}'s datasets</a>
               <ul class="nav">
                 {{range .Packages}}
-                <li><a href="/{{.Dataset}}">{{.Dataset}}</a></li>
+                <li><a href="/{{.Path}}">{{.Path}}</a></li>
                 {{end}}
               </ul>
             </li>
@@ -55,8 +55,8 @@
               <!-- Indexfiles -->
               <table id="packages" class="table">
                 {{range .Packages}}
-                <tr id="{{.Handle.Author}}-{{.Handle.Name}}">
-                  <th><a href="/{{.Dataset}}">{{.Dataset}}</a></th>
+                <tr id="{{.Owner}}-{{.Name}}">
+                  <th><a href="/{{.Path}}">{{.Path}}</a></th>
                   <td>
                     {{if .Tagline}}
                       {{.Tagline}}<br />

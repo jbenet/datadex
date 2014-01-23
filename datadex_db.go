@@ -15,11 +15,13 @@ import (
 var indexDB *IndexDB
 
 type IndexDB struct {
-	db    *db.DB
-	users *db.Col
+	db       *db.DB
+	users    *db.Col
+	datasets *db.Col
 }
 
 const UsersCollection = "Users"
+const DatasetsCollection = "Datasets"
 
 var ErrNotFound = errors.New("Object not found.")
 var ErrTooManyFound = errors.New("More than one object found.")
@@ -56,15 +58,25 @@ func NewIndexDB(d *db.DB) (*IndexDB, error) {
 	i := &IndexDB{db: d}
 	var err error
 
-	// collections to create { name : [index, ...] }
-	collections := map[string][]string{
-		UsersCollection: []string{
-			"Username",
-		},
+	type Collection struct {
+		name    string
+		indexes []string
+		ptr     **db.Col
 	}
 
-	for colname, indexes := range collections {
-		if i.users, err = i.CreateCollection(colname, indexes); err != nil {
+	collections := []Collection{{
+		UsersCollection,
+		[]string{"Username"},
+		&i.users,
+	}, {
+		DatasetsCollection,
+		[]string{"Name", "Owner", "Path"},
+		&i.datasets,
+	},
+	}
+
+	for _, c := range collections {
+		if *c.ptr, err = i.CreateCollection(c.name, c.indexes); err != nil {
 			return nil, err
 		}
 	}
@@ -93,7 +105,7 @@ func (i *IndexDB) ColFindId(col *db.Col, q string) (uint64, error) {
 	return 0, ErrTooManyFound
 }
 
-func (i *IndexDB) ColPutQuery(col *db.Col, q string, in interface{}) error {
+func (i *IndexDB) ColPutQuerySingle(col *db.Col, q string, in interface{}) error {
 	id, err := i.ColFindId(col, q)
 	switch err {
 	case nil:
@@ -117,6 +129,26 @@ func (i *IndexDB) ColPutId(col *db.Col, id uint64, in interface{}) error {
 		return err
 	}
 	return col.Update(id, wrap)
+}
+
+func (i *IndexDB) ColGetQuery(col *db.Col, q string) ([]interface{}, error) {
+	var query interface{}
+	json.Unmarshal([]byte(q), &query)
+
+	results := make(map[uint64]struct{})
+	if err := db.EvalQuery(query, col, &results); err != nil {
+		return nil, err
+	}
+
+	out := []interface{}{}
+	for id, _ := range results {
+		var obj interface{}
+		if err := i.ColGetId(col, id, &obj); err != nil {
+			return nil, err
+		}
+		out = append(out, obj)
+	}
+	return out, nil
 }
 
 func (i *IndexDB) ColGetId(col *db.Col, id uint64, out interface{}) error {
@@ -193,5 +225,54 @@ func (i *IndexDB) PutUser(user *User) error {
 	}
 
 	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, user.Username)
-	return i.ColPutQuery(i.users, q, user)
+	return i.ColPutQuerySingle(i.users, q, user)
+}
+
+func (i *IndexDB) GetUserDatasets(username string) ([]*Dataset, error) {
+	if len(username) < 1 {
+		return nil, fmt.Errorf("No username provided")
+	}
+
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Owner"]}`, username)
+	res, err := i.ColGetQuery(i.datasets, q)
+	if err != nil {
+		return nil, err
+	}
+
+	datasets := []*Dataset{}
+	for _, obj := range res {
+		ds := NewDataset("/")
+		if err := JsonMarshalUnmarshal(obj, ds); err != nil {
+			return nil, err
+		}
+		datasets = append(datasets, ds)
+	}
+	return datasets, nil
+}
+
+func (i *IndexDB) GetDataset(path string) (*Dataset, error) {
+	if len(path) < 1 || len(strings.Split(path, "/")) != 2 {
+		return nil, fmt.Errorf("Invalid dataset path: %s.", path)
+	}
+
+	ds := NewDataset(path)
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, path)
+	id, err := i.ColFindId(i.datasets, q)
+	if err != nil {
+		return nil, err
+	}
+	err = i.ColGetId(i.datasets, id, &ds)
+	if err != nil {
+		return nil, err
+	}
+	return ds, nil
+}
+
+func (i *IndexDB) PutDataset(ds *Dataset) error {
+	if !ds.Valid() {
+		return fmt.Errorf("Invalid dataset: %v", ds)
+	}
+
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, ds.Path)
+	return i.ColPutQuerySingle(i.datasets, q, ds)
 }

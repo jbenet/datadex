@@ -131,8 +131,8 @@ func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	webRenderPage(w, r, datasetTmplName, &WebPage{
-		Title:       f.Dataset,
-		Description: fmt.Sprintf("%s - %s", f.Dataset, f.Tagline),
+		Title:       f.Path,
+		Description: fmt.Sprintf("%s - %s", f.Path, f.Tagline),
 
 		BodyPage: &DatasetWebPage{
 			I:      f,
