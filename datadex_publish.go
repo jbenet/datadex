@@ -33,11 +33,18 @@ func publishRef(f *Dataset, ref string) error {
 			" another dataset (%s) forbidden.\n", ref, df.Dataset, f.Path)
 	}
 
-	// ok, update it now :)
+	// add vesion object too
+	ver := NewDatasetVersion(df.Handle())
+	ver.Ref = ref
+	ver.DatePublished = time.Now().UTC().String()
+	ver.Put()
+
+	// ok, update dataset now :)
 	f.Tagline = df.Tagline
-	f.Refs.Published[ref] = time.Now().UTC().String()
+	f.Refs.Published[ref] = ver.DatePublished
 	f.Refs.Versions[df.Handle().Version] = ref
 	err = f.Put()
+
 	if err != nil {
 		return err
 	}

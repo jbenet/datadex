@@ -18,10 +18,12 @@ type IndexDB struct {
 	db       *db.DB
 	users    *db.Col
 	datasets *db.Col
+	versions *db.Col
 }
 
 const UsersCollection = "Users"
 const DatasetsCollection = "Datasets"
+const DatasetVersionsCollection = "DatasetVersions"
 
 var ErrNotFound = errors.New("Object not found.")
 var ErrTooManyFound = errors.New("More than one object found.")
@@ -72,8 +74,11 @@ func NewIndexDB(d *db.DB) (*IndexDB, error) {
 		DatasetsCollection,
 		[]string{"Name", "Owner", "Path"},
 		&i.datasets,
-	},
-	}
+	}, {
+		DatasetVersionsCollection,
+		[]string{"Dataset", "Path", "DatePublished", "NumDownloads", "NumViews"},
+		&i.versions,
+	}}
 
 	for _, c := range collections {
 		if *c.ptr, err = i.CreateCollection(c.name, c.indexes); err != nil {
@@ -313,4 +318,57 @@ func (i *IndexDB) PutDataset(ds *Dataset) error {
 
 	q := fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, ds.Path)
 	return i.ColPutQuerySingle(i.datasets, q, ds)
+}
+
+// DatasetVersion
+
+func (i *IndexDB) GetDatasetVersions(path string) ([]*DatasetVersion, error) {
+	var q string
+	if len(path) == 0 || path == "all" {
+		q = fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, path)
+	} else {
+		q = "all"
+	}
+
+	res, err := i.ColGetQuery(i.versions, q)
+	if err != nil {
+		return nil, err
+	}
+
+	dsvs := []*DatasetVersion{}
+	for _, obj := range res {
+		dsv := &DatasetVersion{}
+		if err := JsonMarshalUnmarshal(obj, dsv); err != nil {
+			return nil, err
+		}
+		dsvs = append(dsvs, dsv)
+	}
+	return dsvs, nil
+}
+
+func (i *IndexDB) GetDatasetVersion(h *data.Handle) (*DatasetVersion, error) {
+	if h == nil || !h.Valid() {
+		return nil, fmt.Errorf("Invalid dataset handle: %v.", h)
+	}
+
+	ds := NewDatasetVersion(h)
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Dataset"]}`, ds.Dataset)
+	id, err := i.ColFindId(i.versions, q)
+	if err != nil {
+		return nil, err
+	}
+	err = i.ColGetId(i.versions, id, &ds)
+	if err != nil {
+		return nil, err
+	}
+	return ds, nil
+}
+
+func (i *IndexDB) PutDatasetVersion(ds *DatasetVersion) error {
+	if !ds.Valid() {
+		return fmt.Errorf("Invalid dataset version: %v", ds)
+	}
+
+	q := fmt.Sprintf(`{"eq": "%s", "in": ["Dataset"]}`, ds.Dataset)
+	return i.ColPutQuerySingle(i.versions, q, ds)
 }

@@ -72,6 +72,69 @@ func (a DatasetsByLastUpdated) Less(i, j int) bool {
 	return a[i].Refs.LastUpdated() < a[j].Refs.LastUpdated()
 }
 
+// Object that represents a published dataset version.
+
+type DatasetVersion struct {
+	Dataset string
+	Path    string // owner/name
+	Version string
+	Ref     string
+
+	DatePublished string // UTC ISO
+
+	NumViews     int
+	NumDownloads int
+}
+
+func NewDatasetVersion(h *data.Handle) *DatasetVersion {
+	return &DatasetVersion{
+		Path:    h.Path(),
+		Version: h.Version,
+		Dataset: h.Dataset(),
+	}
+}
+
+func (f *DatasetVersion) Handle() *data.Handle {
+	return data.NewHandle(f.Dataset)
+}
+
+func (f *DatasetVersion) Valid() bool {
+	h := f.Handle()
+	return h.Valid() && h.Dataset() == f.Dataset &&
+		h.Version == f.Version && h.Path() == f.Path
+}
+
+func (f *DatasetVersion) Put() error {
+	return indexDB.PutDatasetVersion(f)
+}
+
+// DVByDatePublished implements sort.Interface for []*DatasetVersion
+type DVByDatePublished []*DatasetVersion
+
+func (a DVByDatePublished) Len() int      { return len(a) }
+func (a DVByDatePublished) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DVByDatePublished) Less(i, j int) bool {
+	return a[i].DatePublished < a[j].DatePublished
+}
+
+// DVByNumDownloads implements sort.Interface for []*DatasetVersion
+type DVByNumDownloads []*DatasetVersion
+
+func (a DVByNumDownloads) Len() int      { return len(a) }
+func (a DVByNumDownloads) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DVByNumDownloads) Less(i, j int) bool {
+	return a[i].NumDownloads < a[j].NumDownloads
+}
+
+// DVByNumDownloads implements sort.Interface for []*DatasetVersion
+type DVByVersion []*DatasetVersion
+
+func (a DVByVersion) Len() int      { return len(a) }
+func (a DVByVersion) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DVByVersion) Less(i, j int) bool {
+	return data.VersionLess(a[i].Version, a[j].Version)
+}
+
 // Routes
 
 func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
