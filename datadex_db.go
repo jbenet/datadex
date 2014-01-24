@@ -201,6 +201,25 @@ func JsonMarshalUnmarshal(in interface{}, out interface{}) error {
 
 // Datadex specific stuff:
 
+// User
+
+func (i *IndexDB) GetUsers() ([]*User, error) {
+	res, err := i.ColGetQuery(i.users, `"all"`)
+	if err != nil {
+		return nil, err
+	}
+
+	users := []*User{}
+	for _, obj := range res {
+		u := &User{}
+		if err := JsonMarshalUnmarshal(obj, u); err != nil {
+			return nil, err
+		}
+		users = append(users, u)
+	}
+	return users, nil
+}
+
 func (i *IndexDB) GetUser(name string) (*User, error) {
 	if len(name) < 1 {
 		return nil, fmt.Errorf("Cannot get user without username.")
@@ -228,6 +247,8 @@ func (i *IndexDB) PutUser(user *User) error {
 	return i.ColPutQuerySingle(i.users, q, user)
 }
 
+// Dataset
+
 func (i *IndexDB) GetUserDatasets(username string) ([]*Dataset, error) {
 	if len(username) < 1 {
 		return nil, fmt.Errorf("No username provided")
@@ -235,6 +256,23 @@ func (i *IndexDB) GetUserDatasets(username string) ([]*Dataset, error) {
 
 	q := fmt.Sprintf(`{"eq": "%s", "in": ["Owner"]}`, username)
 	res, err := i.ColGetQuery(i.datasets, q)
+	if err != nil {
+		return nil, err
+	}
+
+	datasets := []*Dataset{}
+	for _, obj := range res {
+		ds := NewDataset("/")
+		if err := JsonMarshalUnmarshal(obj, ds); err != nil {
+			return nil, err
+		}
+		datasets = append(datasets, ds)
+	}
+	return datasets, nil
+}
+
+func (i *IndexDB) GetDatasets() ([]*Dataset, error) {
+	res, err := i.ColGetQuery(i.datasets, `"all"`)
 	if err != nil {
 		return nil, err
 	}
