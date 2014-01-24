@@ -45,7 +45,7 @@ Installing from source is actually very easy. The only hard part is installing G
         # clone the repository with git
         git clone https://github.com/jbenet/data
 
-        # download an archive
+        # or, download an archive
         wget https://github.com/jbenet/data/archive/latest-release.zip -O data.tar.gz
         tar xzf data.tar.gz
 
