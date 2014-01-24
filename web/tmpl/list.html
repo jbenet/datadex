@@ -1,0 +1,68 @@
+{{template "header" .}}
+
+{{with .BodyPage}}
+      <!-- TOC -->
+      <div class="col-sm-3">
+        <div class="bs-sidebar hidden-print" role="complementary">
+          <ul class="nav bs-sidenav">
+            {{template "sidebar-common" .}}
+            <hr />
+            <li><a href="#list">Browse</a>
+              <ul class="nav">
+              {{range $k, $orders := .Lists}}
+              <!-- <li><a>{{$k}}</a><ul class="nav">-->
+                  {{range $o := $orders}}
+                    <li><a href="/list/{{$k}}/by-{{$o}}#list">
+                    {{$k | title}} By {{$o | replace "-" " " | title}}</a></li>
+                  {{end}}
+              <!-- </ul></li>-->
+              {{end}}
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- main -->
+      <div class="col-sm-9" role="main">
+
+        <!-- dataset profile -->
+        <div>
+          <h1>{{.Kind | title}} By {{.Order | replace "-" " " | title}}</h1>
+
+          Note: may load slow. This will be paginated when len(datasets) > 500.
+          <br />
+
+          <table id="list" class="table">
+          {{if eq .Kind "users"}}
+            {{range .List}}
+            <tr>
+              <th><a href="/{{.Username}}">{{.Username}}</a></th>
+              <td>
+                {{.Profile.Name}}
+              </td>
+            </tr>
+            {{end}}
+          {{else}}
+            {{range .List}}
+            <tr>
+              <th><a href="/{{.Path}}">{{.Path}}</a></th>
+              <td>
+                {{if .Tagline}}
+                  {{.Tagline}}<br />
+                {{end}}
+                <span class="text-muted">{{.Refs.Versions | len}} versions.
+                Updated {{.Refs.LastUpdated | timeago}}.</span>
+              </td>
+            </tr>
+            {{end}}
+          {{end}}
+          </table>
+          <br />
+
+        </div>
+      </div>
+
+{{end}}
+
+{{template "footer" .}}

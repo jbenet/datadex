@@ -29,6 +29,10 @@ func init() {
 		"timeago":   data.TimeAgo,
 		"unescaped": func(s string) interface{} { return template.HTML(s) },
 		"md5":       md5Hash,
+		"title":     strings.Title,
+		"replace": func(f, r, s string) string {
+			return strings.Replace(s, f, r, -1)
+		},
 	})
 
 	_, err := webTmpl.ParseGlob("web/tmpl/*.html")
