@@ -6,11 +6,15 @@ import (
 	"github.com/jbenet/data"
 	"github.com/vaughan0/go-password"
 	"net/http"
+	"time"
 )
 
 // User is the object that describes a user.
 type User struct {
 	Username string
+
+	// Register date
+	DateRegistered string
 
 	// Public profile. Viewable and settable by user.
 	Profile data.UserProfile
@@ -40,6 +44,15 @@ func (f *User) GenerateToken() (string, error) {
 
 func (f *User) Put() error {
 	return indexDB.PutUser(f)
+}
+
+// UsersByDateRegistered implements sort.Interface for []*User
+type UsersByDateRegistered []*User
+
+func (a UsersByDateRegistered) Len() int      { return len(a) }
+func (a UsersByDateRegistered) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a UsersByDateRegistered) Less(i, j int) bool {
+	return a[i].DateRegistered < a[j].DateRegistered
 }
 
 // Route Handlers
@@ -111,6 +124,7 @@ func userAddHandler(w http.ResponseWriter, r *http.Request) {
 	// ok, store user.
 	f.Pass = password.Hash(string(m.Pass))
 	f.Profile.Email = m.Email
+	f.DateRegistered = time.Now().UTC().String()
 
 	// pOut("Pass1: %s\n", m.Pass)
 	// pOut("Pass2: %s\n", f.Pass)
