@@ -63,6 +63,15 @@ func (f *Dataset) Put() error {
 	return indexDB.PutDataset(f)
 }
 
+// DatasetsByLastUpdated implements sort.Interface for []*DatasetVersion
+type DatasetsByLastUpdated []*Dataset
+
+func (a DatasetsByLastUpdated) Len() int      { return len(a) }
+func (a DatasetsByLastUpdated) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
+func (a DatasetsByLastUpdated) Less(i, j int) bool {
+	return a[i].Refs.LastUpdated() < a[j].Refs.LastUpdated()
+}
+
 // Routes
 
 func dsHomeHandler(w http.ResponseWriter, r *http.Request) {
