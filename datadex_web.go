@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
+	"strings"
 )
 
 var webTmpl *template.Template
@@ -18,6 +20,7 @@ const homeTmplName = "home.html"
 const userTmplName = "user.html"
 const datasetTmplName = "dataset.html"
 const docTmplName = "doc.html"
+const listTmplName = "list.html"
 
 func init() {
 	// templates
@@ -162,6 +165,77 @@ func webDocHandler(w http.ResponseWriter, r *http.Request) {
 		Title:       p.Title,
 		Description: p.Description,
 		BodyPage:    p,
+	})
+}
+
+type ListWebPage struct {
+	List  []interface{}
+	Kind  string
+	Order string
+	Lists *map[string][]string
+}
+
+func webListHandler(w http.ResponseWriter, r *http.Request) {
+	kind := mux.Vars(r)["kind"]
+	order := mux.Vars(r)["order"]
+	availableLists := &map[string][]string{
+		"users":    []string{"date-registered"},
+		"datasets": []string{"last-updated"},
+	}
+
+	var list []interface{}
+	switch kind {
+	case "users":
+		users, err := indexDB.GetUsers()
+		if err != nil {
+			pErr("error retrieving users: %v", err)
+			http.Error(w, "Error retrieving users.", http.StatusInternalServerError)
+		}
+
+		switch order {
+		case "date-registered":
+			sort.Sort(UsersByDateRegistered(users))
+		}
+
+		for _, u := range users {
+			list = append(list, u)
+		}
+
+	case "datasets":
+		dsets, err := indexDB.GetDatasets()
+		if err != nil {
+			pErr("error retrieving datasets: %v", err)
+			http.Error(w, "Error retrieving users.", http.StatusInternalServerError)
+		}
+
+		switch order {
+		case "last-updated":
+			sort.Sort(DatasetsByLastUpdated(dsets))
+			// case "downloads":
+			// 	sort.Sort(DByNumDownloads(dsets))
+		}
+
+		for _, d := range dsets {
+			list = append(list, d)
+		}
+	}
+
+	if len(list) == 0 {
+		pErr("list not found: %s/by-%s\n", kind, order)
+		http.NotFound(w, r)
+		return
+	}
+
+	webRenderPage(w, r, listTmplName, &WebPage{
+		Title:       fmt.Sprintf("%s by %s", kind, order),
+		Description: fmt.Sprintf("List of %s ordered by %s", kind, order),
+
+		BodyPage: &ListWebPage{
+			List:  list,
+			Kind:  kind,
+			Order: order,
+			Lists: availableLists,
+		},
 	})
 }
 

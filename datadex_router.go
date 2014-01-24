@@ -61,6 +61,9 @@ func setupWebsiteRoutes(r *mux.Router) {
 		r.HandleFunc(p.route, webDocHandler)
 	}
 
+	// lists
+	r.HandleFunc("/list/{kind}/by-{order}", webListHandler)
+
 	// user
 	r.HandleFunc("/{user}", webUserHandler)
 	u := r.PathPrefix("/{user}").Subrouter()
