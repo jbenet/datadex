@@ -36,25 +36,5 @@ Each archive has instructions on how to install. For linux/osx, just put the bin
 
 ## From Source
 
-Installing from source is actually very easy. The only hard part is installing Go.
-
-1. First, install Go (1.2+). Check out [the Go install page](http://golang.org/doc/install) for instructions.
-   Make sure you set your `$GOPATH` and `$PATH`, as described.
-
-2. Get the data source code. Either with git, or wget:
-        # clone the repository with git
-        git clone https://github.com/jbenet/data
-
-        # or, download an archive
-        wget https://github.com/jbenet/data/archive/latest-release.zip -O data.tar.gz
-        tar xzf data.tar.gz
-
-3. Build data (and get dependencies)
-        make deps
-        make install
-
-
-You should now be able to run `data`:
-
-    > data version
-    data version 0.1.0
+Installing from source is easy, if you have Go already installed.
+If not, it can be non-trivial. See [building from source instructions](/doc/source-install).
