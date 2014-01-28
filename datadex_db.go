@@ -1,36 +1,28 @@
 package datadex
 
 import (
-	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/jbenet/data"
-	"github.com/jbenet/tiedot/db"
-	"math/rand"
+	"github.com/jbenet/datadex/datastore"
+	ds "github.com/jbenet/datastore.go"
+	"github.com/jbenet/datastore.go/elastigo"
 	"os"
 	"strings"
-	"time"
 )
 
 var indexDB *IndexDB
 
 type IndexDB struct {
-	db       *db.DB
-	users    *db.Col
-	datasets *db.Col
-	versions *db.Col
+	ds *datastore.Datastore
 }
 
-const UsersCollection = "Users"
-const DatasetsCollection = "Datasets"
-const DatasetVersionsCollection = "DatasetVersions"
+var kUser = ds.NewKey("/User")
+var kDataset = ds.NewKey("/Dataset")
+var kDatasetVersion = ds.NewKey("/DatasetVersion")
 
-var ErrNotFound = errors.New("Object not found.")
-var ErrTooManyFound = errors.New("More than one object found.")
+var ErrNotFound = ds.ErrNotFound
 
 func init() {
-	// It is very important to initialize random number generator seed!
-	rand.Seed(time.Now().UTC().UnixNano())
 
 	dbpath, err := data.ConfigGet("db.path")
 	if err != nil {
@@ -42,166 +34,31 @@ func init() {
 		}
 	}
 
-	// Open database
-	d, err := db.OpenDB(dbpath)
+	// Setup Datastore
+	d, err := datastore.NewDatastore(&datastore.Config{
+		DatabasePath: dbpath,
+		ElasticSearchAddress: elastigo.Address{
+			Host: "localhost",
+			Port: 9300,
+		},
+		Constructor: NewInstanceForKey,
+	})
+
 	if err != nil {
-		pErr("Error opening db: %v", err)
+		pErr("Error on datastore init: %v", err)
 		os.Exit(-1)
 	}
 
 	indexDB, err = NewIndexDB(d)
 	if err != nil {
-		pErr("Error creating db: %v", err)
+		pErr("Error on db init: %v", err)
 		os.Exit(-1)
 	}
 }
 
-func NewIndexDB(d *db.DB) (*IndexDB, error) {
-	i := &IndexDB{db: d}
-	var err error
-
-	type Collection struct {
-		name    string
-		indexes []string
-		ptr     **db.Col
-	}
-
-	collections := []Collection{{
-		UsersCollection,
-		[]string{"Username"},
-		&i.users,
-	}, {
-		DatasetsCollection,
-		[]string{"Name", "Owner", "Path"},
-		&i.datasets,
-	}, {
-		DatasetVersionsCollection,
-		[]string{"Dataset", "Path", "DatePublished", "NumDownloads", "NumViews"},
-		&i.versions,
-	}}
-
-	for _, c := range collections {
-		if *c.ptr, err = i.CreateCollection(c.name, c.indexes); err != nil {
-			return nil, err
-		}
-	}
-
+func NewIndexDB(d *datastore.Datastore) (*IndexDB, error) {
+	i := &IndexDB{ds: d}
 	return i, nil
-}
-
-func (i *IndexDB) ColFindId(col *db.Col, q string) (uint64, error) {
-	pOut("FIND: %s %s\n", col.BaseDir, q)
-	var query interface{}
-	json.Unmarshal([]byte(q), &query)
-
-	results := make(map[uint64]struct{})
-	if err := db.EvalQuery(query, col, &results); err != nil {
-		return 0, err
-	}
-
-	switch len(results) {
-	case 0:
-		return 0, ErrNotFound
-	case 1:
-		for id := range results {
-			return id, nil
-		}
-	}
-	return 0, ErrTooManyFound
-}
-
-func (i *IndexDB) ColPutQuerySingle(col *db.Col, q string, in interface{}) error {
-	id, err := i.ColFindId(col, q)
-	switch err {
-	case nil:
-		return i.ColPutId(col, id, in)
-	case ErrNotFound:
-		return i.ColPutId(col, 0, in)
-	}
-	return err
-}
-
-func (i *IndexDB) ColPutId(col *db.Col, id uint64, in interface{}) error {
-	var wrap map[string]interface{}
-	err := JsonMarshalUnmarshal(in, &wrap)
-	if err != nil {
-		return err
-	}
-
-	pOut("PUT %v %d\n", col.BaseDir, id)
-	if id == 0 {
-		_, err := col.Insert(wrap)
-		return err
-	}
-	return col.Update(id, wrap)
-}
-
-func (i *IndexDB) ColGetQuery(col *db.Col, q string) ([]interface{}, error) {
-	var query interface{}
-	json.Unmarshal([]byte(q), &query)
-
-	results := make(map[uint64]struct{})
-	if err := db.EvalQuery(query, col, &results); err != nil {
-		return nil, err
-	}
-
-	out := []interface{}{}
-	for id, _ := range results {
-		var obj interface{}
-		if err := i.ColGetId(col, id, &obj); err != nil {
-			return nil, err
-		}
-		out = append(out, obj)
-	}
-	return out, nil
-}
-
-func (i *IndexDB) ColGetId(col *db.Col, id uint64, out interface{}) error {
-	var wrap map[string]interface{}
-	if _, err := col.Read(id, &wrap); err != nil {
-		return err
-	}
-
-	pOut("GET %v %d\n", col.BaseDir, id)
-	return JsonMarshalUnmarshal(&wrap, out)
-}
-
-func (i *IndexDB) CreateCollection(name string, idx []string) (*db.Col, error) {
-	// Create tables, if needed.
-	col := i.db.Use(name)
-	for col == nil {
-		if err := i.db.Create(name, 1); err != nil {
-			return nil, fmt.Errorf("Error creating table %s: %s", name, err)
-		}
-		col = i.db.Use(name)
-
-	}
-
-	// apply indexes
-	for _, index := range idx {
-		index_r := strings.Split(index, ",")
-		pOut("Creating db index %s %v\n", name, index_r)
-		if err := col.Index(index_r); err != nil {
-
-			// silence already-indexed errors
-			if strings.Contains(err.Error(), "already indexed in") {
-				continue
-			}
-
-			return nil, fmt.Errorf("Error applying db index: %s, %v, %v",
-				name, index, err)
-		}
-	}
-
-	return col, nil
-}
-
-func JsonMarshalUnmarshal(in interface{}, out interface{}) error {
-	data, err := json.Marshal(in)
-	if err != nil {
-		return err
-	}
-	return json.Unmarshal(data, out)
 }
 
 // Datadex specific stuff:
@@ -209,20 +66,12 @@ func JsonMarshalUnmarshal(in interface{}, out interface{}) error {
 // User
 
 func (i *IndexDB) GetUsers() ([]*User, error) {
-	res, err := i.ColGetQuery(i.users, `"all"`)
-	if err != nil {
-		return nil, err
+	hits, err := i.ds.Search(kUser, "")
+	users := make([]*User, len(*hits))
+	for k, v := range *hits {
+		users[k] = v.(*User)
 	}
-
-	users := []*User{}
-	for _, obj := range res {
-		u := &User{}
-		if err := JsonMarshalUnmarshal(obj, u); err != nil {
-			return nil, err
-		}
-		users = append(users, u)
-	}
-	return users, nil
+	return users, err
 }
 
 func (i *IndexDB) GetUser(name string) (*User, error) {
@@ -230,17 +79,8 @@ func (i *IndexDB) GetUser(name string) (*User, error) {
 		return nil, fmt.Errorf("Cannot get user without username.")
 	}
 
-	u := &User{}
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, name)
-	id, err := i.ColFindId(i.users, q)
-	if err != nil {
-		return nil, err
-	}
-	err = i.ColGetId(i.users, id, &u)
-	if err != nil {
-		return nil, err
-	}
-	return u, nil
+	r, err := i.ds.Get(UserKey(name))
+	return r.(*User), err
 }
 
 func (i *IndexDB) PutUser(user *User) error {
@@ -248,8 +88,7 @@ func (i *IndexDB) PutUser(user *User) error {
 		return fmt.Errorf("Cannot put user without username.")
 	}
 
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Username"]}`, user.Username)
-	return i.ColPutQuerySingle(i.users, q, user)
+	return i.ds.Put(user.Key(), user)
 }
 
 // Dataset
@@ -259,91 +98,56 @@ func (i *IndexDB) GetUserDatasets(username string) ([]*Dataset, error) {
 		return nil, fmt.Errorf("No username provided")
 	}
 
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Owner"]}`, username)
-	res, err := i.ColGetQuery(i.datasets, q)
-	if err != nil {
-		return nil, err
+	hits, err := i.ds.Search(kDataset, "owner:"+username)
+	rets := make([]*Dataset, len(*hits))
+	for k, v := range *hits {
+		rets[k] = v.(*Dataset)
 	}
-
-	datasets := []*Dataset{}
-	for _, obj := range res {
-		ds := NewDataset("/")
-		if err := JsonMarshalUnmarshal(obj, ds); err != nil {
-			return nil, err
-		}
-		datasets = append(datasets, ds)
-	}
-	return datasets, nil
+	return rets, err
 }
 
 func (i *IndexDB) GetDatasets() ([]*Dataset, error) {
-	res, err := i.ColGetQuery(i.datasets, `"all"`)
-	if err != nil {
-		return nil, err
+	hits, err := i.ds.Search(kDataset, "")
+	rets := make([]*Dataset, len(*hits))
+	for k, v := range *hits {
+		rets[k] = v.(*Dataset)
 	}
-
-	datasets := []*Dataset{}
-	for _, obj := range res {
-		ds := NewDataset("/")
-		if err := JsonMarshalUnmarshal(obj, ds); err != nil {
-			return nil, err
-		}
-		datasets = append(datasets, ds)
-	}
-	return datasets, nil
+	return rets, err
 }
 
 func (i *IndexDB) GetDataset(path string) (*Dataset, error) {
-	if len(path) < 1 || len(strings.Split(path, "/")) != 2 {
-		return nil, fmt.Errorf("Invalid dataset path: %s.", path)
+	parts := strings.Split(path, "/")
+	if len(parts) != 2 && len(parts[0]) > 0 && len(parts[1]) > 0 {
+		return nil, fmt.Errorf("Invalid dataset path: '%s'.", path)
 	}
 
-	ds := NewDataset(path)
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, path)
-	id, err := i.ColFindId(i.datasets, q)
-	if err != nil {
-		return nil, err
-	}
-	err = i.ColGetId(i.datasets, id, &ds)
-	if err != nil {
-		return nil, err
-	}
-	return ds, nil
+	// /User:<username>/Dataset:<dataset>
+	ret, err := i.ds.Get(DatasetKey(parts[0], parts[1]))
+	return ret.(*Dataset), err
 }
 
-func (i *IndexDB) PutDataset(ds *Dataset) error {
-	if !ds.Valid() {
-		return fmt.Errorf("Invalid dataset: %v", ds)
+func (i *IndexDB) PutDataset(d *Dataset) error {
+	if !d.Valid() {
+		return fmt.Errorf("Invalid dataset: %v", d)
 	}
 
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, ds.Path)
-	return i.ColPutQuerySingle(i.datasets, q, ds)
+	return i.ds.Put(d.Key(), d)
 }
 
 // DatasetVersion
 
 func (i *IndexDB) GetDatasetVersions(path string) ([]*DatasetVersion, error) {
-	var q string
-	if len(path) == 0 || path == "all" {
-		q = fmt.Sprintf(`{"eq": "%s", "in": ["Path"]}`, path)
-	} else {
-		q = "all"
+	q := ""
+	if len(path) > 0 {
+		q = "path:" + path
 	}
 
-	res, err := i.ColGetQuery(i.versions, q)
-	if err != nil {
-		return nil, err
+	hits, err := i.ds.Search(kDatasetVersion, q)
+	rets := make([]*DatasetVersion, len(*hits))
+	for k, v := range *hits {
+		rets[k] = v.(*DatasetVersion)
 	}
-
-	dsvs := []*DatasetVersion{}
-	for _, obj := range res {
-		dsv := &DatasetVersion{}
-		if err := JsonMarshalUnmarshal(obj, dsv); err != nil {
-			return nil, err
-		}
-		dsvs = append(dsvs, dsv)
-	}
-	return dsvs, nil
+	return rets, err
 }
 
 func (i *IndexDB) GetDatasetVersion(h *data.Handle) (*DatasetVersion, error) {
@@ -351,24 +155,73 @@ func (i *IndexDB) GetDatasetVersion(h *data.Handle) (*DatasetVersion, error) {
 		return nil, fmt.Errorf("Invalid dataset handle: %v.", h)
 	}
 
-	ds := NewDatasetVersion(h)
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Dataset"]}`, ds.Dataset)
-	id, err := i.ColFindId(i.versions, q)
-	if err != nil {
-		return nil, err
-	}
-	err = i.ColGetId(i.versions, id, &ds)
-	if err != nil {
-		return nil, err
-	}
-	return ds, nil
+	ret, err := i.ds.Get(HandleKey(h))
+	return ret.(*DatasetVersion), err
 }
 
-func (i *IndexDB) PutDatasetVersion(ds *DatasetVersion) error {
-	if !ds.Valid() {
-		return fmt.Errorf("Invalid dataset version: %v", ds)
+func (i *IndexDB) PutDatasetVersion(dv *DatasetVersion) error {
+	if !dv.Valid() {
+		return fmt.Errorf("Invalid dataset version: %v", dv)
 	}
 
-	q := fmt.Sprintf(`{"eq": "%s", "in": ["Dataset"]}`, ds.Dataset)
-	return i.ColPutQuerySingle(i.versions, q, ds)
+	return i.ds.Put(dv.Key(), dv)
+}
+
+// Model key specifics
+
+func NewInstanceForKey(key ds.Key) datastore.Model {
+	switch key.Type() {
+	case "User":
+		return &User{}
+	case "Dataset":
+		return &Dataset{}
+	}
+	return nil
+}
+
+func UserKey(username string) ds.Key {
+	return kUser.Instance(username)
+}
+
+func DatasetKey(owner, name string) ds.Key {
+	return kUser.Instance(owner).Child(kDataset.Name()).Instance(name)
+}
+
+func DatasetVersionKey(owner, name, version string) ds.Key {
+	return kUser.Instance(owner).
+		Child(kDataset.Name()).Instance(name).
+		Child(kDatasetVersion.Name()).Instance(version)
+}
+
+func HandleKey(f *data.Handle) ds.Key {
+	return DatasetVersionKey(f.Author, f.Name, f.Version)
+}
+
+func (f *User) Key() ds.Key {
+	return UserKey(f.Username)
+}
+
+func (f *Dataset) Key() ds.Key {
+	return DatasetKey(f.Owner, f.Owner)
+}
+
+func (f *DatasetVersion) Key() ds.Key {
+	return HandleKey(f.Handle())
+}
+
+// IndexFields implementations
+
+func (f *User) IndexFields() *map[string]interface{} {
+	m := &map[string]interface{}{}
+	return m
+}
+
+func (f *Dataset) IndexFields() *map[string]interface{} {
+	m := &map[string]interface{}{}
+	return m
+}
+
+func (f *DatasetVersion) IndexFields() *map[string]interface{} {
+	m := &map[string]interface{}{}
+	return m
 }
