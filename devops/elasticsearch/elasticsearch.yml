@@ -1,0 +1,3 @@
+cluster.name: datadex
+path.data: /elasticsearch/data/
+path.logs: /elasticsearch/logs/
