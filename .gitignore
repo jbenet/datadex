@@ -1,3 +1,4 @@
 datadex/datadex
 datasets/
 deploy.sh
+.vm/
