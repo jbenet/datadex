@@ -1,4 +1,4 @@
-package main
+package datadex
 
 import (
 	"github.com/gorilla/mux"

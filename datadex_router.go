@@ -1,4 +1,4 @@
-package main
+package datadex
 
 import (
 	"fmt"
@@ -6,6 +6,8 @@ import (
 	"github.com/jbenet/data"
 	"net/http"
 )
+
+const Version = "0.1.0"
 
 func NewDatadexRouter() *mux.Router {
 	r := mux.NewRouter()

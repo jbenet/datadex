@@ -1,4 +1,4 @@
-package main
+package datadex
 
 import (
 	"crypto/md5"
@@ -8,6 +8,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
+	"regexp"
 )
 
 func httpWriteFile(w http.ResponseWriter, df *data.SerializedFile) {
@@ -45,4 +47,26 @@ func md5Hash(s string) string {
 	h := md5.New()
 	io.WriteString(h, s)
 	return fmt.Sprintf("%x", h.Sum(nil))
+}
+
+// Printing out.
+
+func pErr(format string, a ...interface{}) {
+	fmt.Fprintf(os.Stderr, format, a...)
+}
+
+func pOut(format string, a ...interface{}) {
+	fmt.Fprintf(os.Stdout, format, a...)
+}
+
+// Regexp
+
+func compileRegexp(s string) *regexp.Regexp {
+	r, err := regexp.Compile(s)
+	if err != nil {
+		pOut("%s", err)
+		pOut("%v", r)
+		panic("Regex does not compile: " + s)
+	}
+	return r
 }
