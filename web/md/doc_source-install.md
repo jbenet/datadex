@@ -18,7 +18,7 @@ Installing from source is divided in parts:
 
 This is the hardest part. Follow the official instructions for your platform available at [the Go install page](http://golang.org/doc/install).
 
-Make sure you setup your **Go workspace**, your `$GOPATH` and `$PATH`, as  described.
+Make sure you setup your **Go workspace**, your `$GOPATH` and `$PATH`, as  described in http://golang.org/doc/code.html#GOPATH
 
 You'll know you're done if you can run Go. For example, for me:
 
