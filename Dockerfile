@@ -10,6 +10,7 @@ FROM ubuntu
 MAINTAINER Juan Batiz-Benet juan@benet.ai
 
 # upgrade apt
+RUN apt-get update
 RUN apt-get install -y python-software-properties
 RUN add-apt-repository -y "http://archive.ubuntu.com/ubuntu universe"
 RUN apt-get update
