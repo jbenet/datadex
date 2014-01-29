@@ -1,0 +1,23 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
+VAGRANTFILE_API_VERSION = "2"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "boot2docker"
+  config.vm.box_url = "https://github.com/mitchellh/boot2docker-vagrant-box/releases/download/v0.3.0/boot2docker.box"
+  config.vm.network :forwarded_port, guest: 4243, host: 4243  # docker
+  config.vm.network :forwarded_port, guest: 80,   host: 8082  # nginx
+  config.vm.network :forwarded_port, guest: 8080, host: 8081  # datadex
+  config.vm.network :forwarded_port, guest: 9200, host: 9200  # elasticsearch
+
+  # config.vm.synced_folder "../", "/usr/local/go/src/github.com/jbenet/datadex"
+
+  # setup docker to listen on tcp
+  config.vm.provision :shell, :inline => <<-eos
+  sudo killall docker
+  sudo docker -d -H tcp://0.0.0.0:4243
+  eos
+
+end
