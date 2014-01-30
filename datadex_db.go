@@ -39,7 +39,7 @@ func init() {
 		DatabasePath: dbpath,
 		ElasticSearchAddress: elastigo.Address{
 			Host: "localhost",
-			Port: 9300,
+			Port: 9200,
 		},
 		Constructor: NewInstanceForKey,
 	})

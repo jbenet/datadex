@@ -22,7 +22,7 @@ var defaultConfig = &Config{
   DatabasePath: ".datastore",
   ElasticSearchAddress: elastigo.Address{
     Host: "localhost",
-    Port: 9300,
+    Port: 9200,
   },
 }
 
