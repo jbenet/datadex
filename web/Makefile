@@ -45,16 +45,24 @@ build/static/%: static/%
 	cp $< $@
 
 # js/coffee
-js: build/static/datadex.min.js
+js: coffee build/static/datadex.min.js
+
+coffee: $(shell find coffee -type f | grep .coffee | sed 's/coffee\//js-compiled\//g' | sed 's/\.coffee/\.js/g' )
+
+js-compiled/%.js: coffee/%.coffee
+	@mkdir -p `dirname $@`
+	@rm -f $@
+	node_modules/.bin/coffee -b -p -c $< > $@
 
 build/static/%.min.js: build/static/%.js
 	@mkdir -p `dirname $@`
 	@rm -f $@
 	node_modules/.bin/uglifyjs $< > $@
 
-build/static/datadex.js:  $(shell find js -type f | grep .js)
+build/static/datadex.js:  $(shell find js -type f | grep .js) $(shell find js-compiled -type f | grep .js)
 	@mkdir -p `dirname $@`
 	@rm -f $@
+	cat $^ | node_modules/.bin/uglifyjs - -b indent-level=2 -o $@
 	cat $^ | node_modules/.bin/uglifyjs - -b indent-level=2 -o $@
 
 # reference
