@@ -54,6 +54,7 @@ func setupApiRoutes(r *mux.Router) {
 
 func setupWebsiteRoutes(r *mux.Router) {
 	// serve static files
+	r.HandleFunc("/static/config.js", webConfigHandler)
 	r.PathPrefix("/static").Handler(http.FileServer(http.Dir("web/build/")))
 
 	r.HandleFunc("/version", versionHandler).Methods("GET")

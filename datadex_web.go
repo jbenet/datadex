@@ -1,6 +1,7 @@
 package datadex
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/jbenet/data"
@@ -256,4 +257,19 @@ func webRenderPage(w http.ResponseWriter, r *http.Request,
 		pErr("%v\n", err)
 		http.Error(w, "Error rendering page.", http.StatusInternalServerError)
 	}
+}
+
+func webConfigHandler(w http.ResponseWriter, r *http.Request) {
+	config := map[string]interface{}{
+		"ELASTICSEARCH_URL": "http://localhost:9200",
+	}
+	out, err := json.Marshal(config)
+	if err != nil {
+		pErr("%v\n", err)
+		http.Error(w, "Server error.", http.StatusInternalServerError)
+	}
+
+	w.Write([]byte("(function() { datadex.config = "))
+	w.Write(out)
+	w.Write([]byte(";}).call(this);\n"))
 }
