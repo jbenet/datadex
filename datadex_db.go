@@ -80,7 +80,8 @@ func (i *IndexDB) GetUser(name string) (*User, error) {
 	}
 
 	r, err := i.ds.Get(UserKey(name))
-	return r.(*User), err
+	out, _ := r.(*User)
+	return out, err
 }
 
 func (i *IndexDB) PutUser(user *User) error {
@@ -123,7 +124,8 @@ func (i *IndexDB) GetDataset(path string) (*Dataset, error) {
 
 	// /User:<username>/Dataset:<dataset>
 	ret, err := i.ds.Get(DatasetKey(parts[0], parts[1]))
-	return ret.(*Dataset), err
+	out, _ := ret.(*Dataset)
+	return out, err
 }
 
 func (i *IndexDB) PutDataset(d *Dataset) error {
@@ -156,7 +158,8 @@ func (i *IndexDB) GetDatasetVersion(h *data.Handle) (*DatasetVersion, error) {
 	}
 
 	ret, err := i.ds.Get(HandleKey(h))
-	return ret.(*DatasetVersion), err
+	out, _ := ret.(*DatasetVersion)
+	return out, err
 }
 
 func (i *IndexDB) PutDatasetVersion(dv *DatasetVersion) error {
