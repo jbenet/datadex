@@ -269,7 +269,10 @@ func webConfigHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Server error.", http.StatusInternalServerError)
 	}
 
-	w.Write([]byte("(function() { datadex.config = "))
-	w.Write(out)
-	w.Write([]byte(";}).call(this);\n"))
+	w.Write([]byte(fmt.Sprintf(webConfigScript, out)))
 }
+
+const webConfigScript = `(function() { this.datadex = this.datadex || {};
+this.datadex.config = %s;
+;}).call(this);
+`
