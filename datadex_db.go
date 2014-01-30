@@ -67,11 +67,15 @@ func NewIndexDB(d *datastore.Datastore) (*IndexDB, error) {
 
 func (i *IndexDB) GetUsers() ([]*User, error) {
 	hits, err := i.ds.Search(kUser, "")
+	if err != nil {
+		return nil, err
+	}
+
 	users := make([]*User, len(*hits))
 	for k, v := range *hits {
 		users[k] = v.(*User)
 	}
-	return users, err
+	return users, nil
 }
 
 func (i *IndexDB) GetUser(name string) (*User, error) {
@@ -99,21 +103,29 @@ func (i *IndexDB) GetUserDatasets(username string) ([]*Dataset, error) {
 		return nil, fmt.Errorf("No username provided")
 	}
 
-	hits, err := i.ds.Search(kDataset, "owner:"+username)
+	query := `{"query" : {"term" : { "owner" : "` + username + `" }}}`
+	hits, err := i.ds.Search(kDataset, query)
+	if err != nil {
+		return nil, err
+	}
 	rets := make([]*Dataset, len(*hits))
 	for k, v := range *hits {
 		rets[k] = v.(*Dataset)
 	}
-	return rets, err
+	return rets, nil
 }
 
 func (i *IndexDB) GetDatasets() ([]*Dataset, error) {
 	hits, err := i.ds.Search(kDataset, "")
+	if err != nil {
+		return nil, err
+	}
+
 	rets := make([]*Dataset, len(*hits))
 	for k, v := range *hits {
 		rets[k] = v.(*Dataset)
 	}
-	return rets, err
+	return rets, nil
 }
 
 func (i *IndexDB) GetDataset(path string) (*Dataset, error) {
@@ -145,11 +157,15 @@ func (i *IndexDB) GetDatasetVersions(path string) ([]*DatasetVersion, error) {
 	}
 
 	hits, err := i.ds.Search(kDatasetVersion, q)
+	if err != nil {
+		return nil, err
+	}
+
 	rets := make([]*DatasetVersion, len(*hits))
 	for k, v := range *hits {
 		rets[k] = v.(*DatasetVersion)
 	}
-	return rets, err
+	return rets, nil
 }
 
 func (i *IndexDB) GetDatasetVersion(h *data.Handle) (*DatasetVersion, error) {
@@ -205,7 +221,7 @@ func (f *User) Key() ds.Key {
 }
 
 func (f *Dataset) Key() ds.Key {
-	return DatasetKey(f.Owner, f.Owner)
+	return DatasetKey(f.Owner, f.Name)
 }
 
 func (f *DatasetVersion) Key() ds.Key {
@@ -216,6 +232,7 @@ func (f *DatasetVersion) Key() ds.Key {
 
 func (f *User) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
+		"key":             f.Key().String(),
 		"username":        f.Username,
 		"email":           f.Profile.Email,
 		"name":            f.Profile.Name,
@@ -226,6 +243,7 @@ func (f *User) IndexFields() *map[string]interface{} {
 
 func (f *Dataset) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
+		"key":          f.Key().String(),
 		"path":         f.Path,
 		"owner":        f.Owner,
 		"name":         f.Name,
@@ -238,6 +256,7 @@ func (f *Dataset) IndexFields() *map[string]interface{} {
 
 func (f *DatasetVersion) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
+		"key":            f.Key().String(),
 		"dataset":        f.Dataset,
 		"path":           f.Path,
 		"version":        f.Version,

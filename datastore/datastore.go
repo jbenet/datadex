@@ -2,6 +2,7 @@ package datastore
 
 import (
   "bytes"
+  "encoding/json"
   "fmt"
   "github.com/jbenet/data"
   ds "github.com/jbenet/datastore.go"
@@ -122,10 +123,27 @@ func (d *Datastore) Search(key ds.Key, query string) (*[]Model, error) {
 
   models := []Model{}
   for _, h := range out.Hits.Hits {
-    model, err := d.Get(key.Instance(h.Id))
+
+    // unmarshal response
+    var data map[string]interface{}
+    err := json.Unmarshal(h.Source, &data)
+    if err != nil {
+      return nil, fmt.Errorf("Unmarshal error: %v", err)
+    }
+
+    // get key
+    k, ok := data["key"].(string)
+    if !ok {
+      return nil, fmt.Errorf("Unmarshal error. Key not a string: %v", data["key"])
+    }
+
+    // retrieve object
+    model, err := d.Get(ds.NewKey(k))
     if err != nil {
       return nil, fmt.Errorf("%v (ElasticSearch inconsistent?)", err)
     }
+
+    // ok! we have it.
     models = append(models, model)
   }
   return &models, nil
