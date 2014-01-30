@@ -216,9 +216,9 @@ func (f *DatasetVersion) Key() ds.Key {
 
 func (f *User) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
-		"username": f.Username,
-		"email": f.Profile.Email,
-		"name": f.Profile.Name,
+		"username":        f.Username,
+		"email":           f.Profile.Email,
+		"name":            f.Profile.Name,
 		"date_registered": f.DateRegistered,
 	}
 	return m
@@ -226,10 +226,10 @@ func (f *User) IndexFields() *map[string]interface{} {
 
 func (f *Dataset) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
-		"path": f.Path,
-		"owner": f.Owner,
-		"name": f.Name,
-		"tagline": f.Tagline,
+		"path":         f.Path,
+		"owner":        f.Owner,
+		"name":         f.Name,
+		"tagline":      f.Tagline,
 		"last_updated": f.Refs.LastUpdated(),
 		"num_versions": len(f.Refs.Versions),
 	}
@@ -238,13 +238,13 @@ func (f *Dataset) IndexFields() *map[string]interface{} {
 
 func (f *DatasetVersion) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
-		"dataset": f.Dataset,
-		"path": f.Path,
-		"version": f.Version,
-		"ref": f.Ref,
+		"dataset":        f.Dataset,
+		"path":           f.Path,
+		"version":        f.Version,
+		"ref":            f.Ref,
 		"date_published": f.DatePublished,
-		"num_views": f.NumViews,
-		"num_downloads": f.NumDownloads,
+		"num_views":      f.NumViews,
+		"num_downloads":  f.NumDownloads,
 	}
 	return m
 }
