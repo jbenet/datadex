@@ -233,6 +233,7 @@ func (f *DatasetVersion) Key() ds.Key {
 func (f *User) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		"key":             f.Key().String(),
+		"link":            "/" + f.Username,
 		"username":        f.Username,
 		"email":           f.Profile.Email,
 		"name":            f.Profile.Name,
@@ -244,6 +245,7 @@ func (f *User) IndexFields() *map[string]interface{} {
 func (f *Dataset) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		"key":          f.Key().String(),
+		"link":	        "/" + f.Path,
 		"path":         f.Path,
 		"owner":        f.Owner,
 		"name":         f.Name,
@@ -257,6 +259,7 @@ func (f *Dataset) IndexFields() *map[string]interface{} {
 func (f *DatasetVersion) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		"key":            f.Key().String(),
+		"link":	          "/" + f.Dataset,
 		"dataset":        f.Dataset,
 		"path":           f.Path,
 		"version":        f.Version,
