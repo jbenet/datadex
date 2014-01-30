@@ -28,8 +28,11 @@ var defaultConfig = &Config{
 
 
 type Datastore struct {
-  db *leveldb.Datastore
-  es *elastigo.Datastore
+  config *Config
+  dbr *leveldb.Datastore
+  esr *elastigo.Datastore
+  db *ds.LogDatastore
+  es *ds.LogDatastore
 }
 
 func NewDatastore(c *Config) (*Datastore, error) {
@@ -47,7 +50,13 @@ func NewDatastore(c *Config) (*Datastore, error) {
     return nil, err
   }
 
-  return &Datastore{db: db, es: es}, nil
+  return &Datastore{
+    config: c,
+    dbr: db,
+    esr: es,
+    db: ds.NewLogDatastore(db, "leveldb"),
+    es: ds.NewLogDatastore(es, "elastigo"),
+  }, nil
 }
 
 func (d *Datastore) Put(key ds.Key, value Model) (err error) {
@@ -70,7 +79,7 @@ func (d *Datastore) Put(key ds.Key, value Model) (err error) {
 
 func (d *Datastore) Get(key ds.Key) (value Model, err error) {
   // setup return type based on key type
-
+  value = d.config.Constructor(key)
 
   // get data from leveldb
   val, err := d.db.Get(key)
@@ -106,7 +115,7 @@ func (d *Datastore) Delete(key ds.Key) (err error) {
 }
 
 func (d *Datastore) Search(key ds.Key, query string) (*[]Model, error) {
-  out, err := esCore.SearchRequest(true, d.es.Index(key), key.Name(), query, "", 0)
+  out, err := esCore.SearchRequest(true, d.esr.Index(key), key.Name(), query, "", 0)
   if err != nil {
     return nil, err
   }
