@@ -14,6 +14,7 @@
   "dependencies": {
     "cssmin": "~0.4.1",
     "less": "~1.4.2",
-    "uglify-js": "~2.4.8"
+    "uglify-js": "~2.4.8",
+    "coffee-script": "~1.7.1"
   }
 }
