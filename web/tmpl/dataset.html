@@ -61,7 +61,7 @@ $ data get {{.D.Dataset}}</pre>
             </tr>
             <tr>
               <th>Website</th>
-              <td>{{.D.Website}}</td>
+              <td><a href="{{.D.Website}}">{{.D.Website}}</a></td>
             </tr>
             <tr>
               <th>Repository</th>
@@ -106,7 +106,11 @@ $ data get {{.D.Dataset}}</pre>
 
           <div id="ds-readme" class="well">
           {{if .Readme}}
-            {{.Readme}}
+            {{if .EscapeReadme }}
+              {{.Readme}}
+            {{else}}
+              {{.Readme | unescaped }}
+            {{end}}
           {{else}}
           No README found. We recommend adding a README to this package to
           help give people an overview of your dataset.

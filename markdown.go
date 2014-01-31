@@ -133,3 +133,31 @@ func RenderMarkdown(input []byte) []byte {
 
 	return blackfriday.Markdown(input, renderer, ext)
 }
+
+func RenderMarkdownSafe(input []byte) []byte {
+	// set up the HTML renderer
+	flags := 0
+	flags |= blackfriday.HTML_USE_XHTML
+	flags |= blackfriday.HTML_USE_SMARTYPANTS
+	flags |= blackfriday.HTML_SMARTYPANTS_FRACTIONS
+	flags |= blackfriday.HTML_SMARTYPANTS_LATEX_DASHES
+	flags |= blackfriday.HTML_SKIP_HTML
+	flags |= blackfriday.HTML_SKIP_SCRIPT
+	flags |= blackfriday.HTML_SKIP_STYLE
+	// flags |= blackfriday.HTML_TOC
+	// flags |= blackfriday.HTML_GITHUB_BLOCKCODE
+	renderer := blackfriday.HtmlRenderer(flags, "", "")
+
+	// set up the parser
+	ext := 0
+	ext |= blackfriday.EXTENSION_NO_INTRA_EMPHASIS
+	ext |= blackfriday.EXTENSION_TABLES
+	ext |= blackfriday.EXTENSION_FENCED_CODE
+	ext |= blackfriday.EXTENSION_AUTOLINK
+	ext |= blackfriday.EXTENSION_STRIKETHROUGH
+	ext |= blackfriday.EXTENSION_SPACE_HEADERS
+	ext |= blackfriday.EXTENSION_HARD_LINE_BREAK
+	ext |= blackfriday.EXTENSION_NO_EMPTY_LINE_BEFORE_BLOCK
+
+	return blackfriday.Markdown(input, renderer, ext)
+}

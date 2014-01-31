@@ -114,9 +114,10 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type DatasetWebPage struct {
-	I      *Dataset
-	D      *data.Datafile
-	Readme string
+	I            *Dataset
+	D            *data.Datafile
+	Readme       string
+	EscapeReadme bool
 }
 
 func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
@@ -138,14 +139,25 @@ func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	readme, err := FileForManifestRef(ref)
+	if err != nil {
+		pErr("Error finding Readme: %v\n", err)
+		readme = noReadmeFile
+	} else {
+		if err := readme.Read(); err != nil {
+			pErr("Error loading Readme: %v\n", err)
+		}
+	}
+
 	webRenderPage(w, r, datasetTmplName, &WebPage{
 		Title:       f.Path,
 		Description: fmt.Sprintf("%s - %s", f.Path, f.Tagline),
 
 		BodyPage: &DatasetWebPage{
-			I:      f,
-			D:      df,
-			Readme: "",
+			I:            f,
+			D:            df,
+			Readme:       string(readme.RenderedBytes()),
+			EscapeReadme: !readme.CanBeRendered(),
 		},
 	})
 }
