@@ -1,4 +1,8 @@
 db:
   path: .indexdb
   elasticsearch: http://localhost:9200/datadex
-
+index:
+  datadex:
+    url: localhost:8080
+    token:
+    user:
