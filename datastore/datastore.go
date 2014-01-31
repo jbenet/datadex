@@ -15,16 +15,13 @@ import (
 
 type Config struct {
   DatabasePath string
-  ElasticSearchAddress elastigo.Address
+  ElasticSearchUrl string
   Constructor func (ds.Key) Model
 }
 
 var defaultConfig = &Config{
   DatabasePath: ".datastore",
-  ElasticSearchAddress: elastigo.Address{
-    Host: "localhost",
-    Port: 9200,
-  },
+  ElasticSearchUrl: "http://localhost:9200/datadex",
 }
 
 
@@ -41,7 +38,7 @@ func NewDatastore(c *Config) (*Datastore, error) {
     c = defaultConfig
   }
 
-  es, err := elastigo.NewDatastore(c.ElasticSearchAddress, "datadex")
+  es, err := elastigo.NewDatastore(c.ElasticSearchUrl)
   if err != nil {
     return nil, err
   }

@@ -5,7 +5,6 @@ import (
 	"github.com/jbenet/data"
 	"github.com/jbenet/datadex/datastore"
 	ds "github.com/jbenet/datastore.go"
-	"github.com/jbenet/datastore.go/elastigo"
 	"os"
 	"strings"
 )
@@ -24,24 +23,17 @@ var ErrNotFound = ds.ErrNotFound
 
 func init() {
 
-	dbpath, err := data.ConfigGet("db.path")
-	if err != nil {
-		if len(err.Error()) == 0 {
-			dbpath = ".indexdb"
-		} else {
-			pErr("Error loading db.path config: %v", err)
-			os.Exit(-1)
-		}
-	}
+	dbpath := data.ConfigGetString("db.path", ".indexdb")
+	esurl := data.ConfigGetString("db.elasticsearch", "http://localhost:9200/datadex")
+
+	pOut("Using db.path %s\n", dbpath)
+	pOut("Using db.elasticsearch %s\n", esurl)
 
 	// Setup Datastore
 	d, err := datastore.NewDatastore(&datastore.Config{
-		DatabasePath: dbpath,
-		ElasticSearchAddress: elastigo.Address{
-			Host: "localhost",
-			Port: 9200,
-		},
-		Constructor: NewInstanceForKey,
+		DatabasePath:     dbpath,
+		ElasticSearchUrl: esurl,
+		Constructor:      NewInstanceForKey,
 	})
 
 	if err != nil {

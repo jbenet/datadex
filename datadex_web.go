@@ -260,9 +260,11 @@ func webRenderPage(w http.ResponseWriter, r *http.Request,
 }
 
 func webConfigHandler(w http.ResponseWriter, r *http.Request) {
+	esurl := data.ConfigGetString("db.elasticsearch", "http://localhost:9200/datadex")
 	config := map[string]interface{}{
-		"ELASTICSEARCH_URL": "http://localhost:9200/datadex",
+		"ELASTICSEARCH_URL": esurl,
 	}
+
 	out, err := json.Marshal(config)
 	if err != nil {
 		pErr("%v\n", err)
