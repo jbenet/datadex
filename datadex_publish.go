@@ -37,6 +37,7 @@ func publishRef(f *Dataset, ref string) error {
 	ver := NewDatasetVersion(df.Handle())
 	ver.Ref = ref
 	ver.DatePublished = time.Now().UTC().String()
+	ver.Tagline = df.Tagline
 	ver.Put()
 
 	// ok, update dataset now :)

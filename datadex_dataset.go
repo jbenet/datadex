@@ -78,6 +78,7 @@ type DatasetVersion struct {
 	Dataset string
 	Path    string // owner/name
 	Version string
+	Tagline string
 	Ref     string
 
 	DatePublished string // UTC ISO
