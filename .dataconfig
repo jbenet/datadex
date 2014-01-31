@@ -1,0 +1,4 @@
+db:
+  path: .indexdb
+  elasticsearch: http://localhost:9200/datadex
+
