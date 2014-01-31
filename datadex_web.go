@@ -261,7 +261,7 @@ func webRenderPage(w http.ResponseWriter, r *http.Request,
 
 func webConfigHandler(w http.ResponseWriter, r *http.Request) {
 	config := map[string]interface{}{
-		"ELASTICSEARCH_URL": "http://localhost:9200",
+		"ELASTICSEARCH_URL": "http://localhost:9200/datadex",
 	}
 	out, err := json.Marshal(config)
 	if err != nil {
