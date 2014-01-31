@@ -225,10 +225,10 @@ func (f *DatasetVersion) Key() ds.Key {
 func (f *User) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		// autocomplete requirements
-		"key":             f.Key().String(),
-		"link":            "/" + f.Username,
-		"name":            f.Username,
-		"tagline":         f.Profile.Name,
+		"key":     f.Key().String(),
+		"link":    "/" + f.Username,
+		"name":    f.Username,
+		"tagline": f.Profile.Name,
 		// other
 		"username":        f.Username,
 		"email":           f.Profile.Email,
@@ -240,10 +240,10 @@ func (f *User) IndexFields() *map[string]interface{} {
 func (f *Dataset) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		// autocomplete requirements
-		"key":          f.Key().String(),
-		"link":	        "/" + f.Path,
-		"name":         f.Path,
-		"tagline":      f.Tagline,
+		"key":     f.Key().String(),
+		"link":    "/" + f.Path,
+		"name":    f.Path,
+		"tagline": f.Tagline,
 		// other
 		"path":         f.Path,
 		"owner":        f.Owner,
@@ -256,10 +256,10 @@ func (f *Dataset) IndexFields() *map[string]interface{} {
 func (f *DatasetVersion) IndexFields() *map[string]interface{} {
 	m := &map[string]interface{}{
 		// autocomplete requirements
-		"key":            f.Key().String(),
-		"link":	          "/" + f.Dataset,
-		"name":         	f.Dataset,
-		"tagline":    		f.Tagline,
+		"key":     f.Key().String(),
+		"link":    "/" + f.Dataset,
+		"name":    f.Dataset,
+		"tagline": f.Tagline,
 		// other
 		"dataset":        f.Dataset,
 		"path":           f.Path,
