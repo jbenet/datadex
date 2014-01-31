@@ -314,23 +314,27 @@ img.gravatar.large {
 
   .tt-suggestion {
     padding: 8px 20px;
-    max-width: 100%;
+    min-width: 380px;
     text-align: left;
 
     + .tt-suggestion {
       border-top: 1px solid #ccc;
     }
 
-    .type {
-      float: right;
+    .value {
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .tagline {
       font-style: italic;
     }
 
-    .name {
-      font-weight: bold;
-    }
-
-    .description {
+    .icon {
+      float: left;
+      font-size: 30px;
+      margin-right: 10px;
+      opacity: 0.6;
     }
   }
 }
