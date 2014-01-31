@@ -24,11 +24,11 @@ class datadex.Autocomplete
 
 
   template: _.template '''
-    <div class="icon">
+    <span class="icon">
       <i class="<%= type_icon %>"></i>
-    </div>
-    <div class="value"><%= value %></div>
-    <div class="tagline"><%= tagline %></div>
+    </span>
+    <span class="value"><%= value %></span>
+    <span class="tagline"><%= tagline %></span>
     '''
 
 
