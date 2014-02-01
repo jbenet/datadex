@@ -45,16 +45,46 @@ $ data get {{.D.Dataset}}</pre>
               <td>{{.D.Tagline}}</td>
             </tr>
             <tr>
-              <th>Maintainer</th>
-              <td><a href="/{{.D.Handle.Author}}">{{.D.Handle.Author}}</a></td>
-            </tr>
-            <tr>
               <th>Versions</th>
               <td>
                 <ul class="no-bullet">
                 {{ $p := .D.Handle.Path}}
                 {{range $v, $h := .I.Refs.Versions}}
                   <li><a href="/{{$p}}@{{$v}}">{{$p}}@{{$v}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Maintainer</th>
+              <td><a href="/{{.D.Handle.Author}}">{{.D.Handle.Author}}</a></td>
+            </tr>
+            <tr>
+              <th>Authors</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Authors}}
+                  <li><a href="/{{.}}">{{.}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Contributors</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Contributors}}
+                  <li><a href="/{{.}}">{{.}}</a></li>
+                {{end}}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th>Sources</th>
+              <td>
+                <ul class="no-bullet">
+                {{range .D.Sources}}
+                  <li>{{.}}</li>
                 {{end}}
                 </ul>
               </td>
@@ -72,31 +102,11 @@ $ data get {{.D.Dataset}}</pre>
               <td>{{.D.License}}</td>
             </tr>
             <tr>
-              <th>Contributors</th>
-              <td>
-                <ul class="no-bullet">
-                {{range .D.Contributors}}
-                  <li><a href="/{{.}}">{{.}}</a></li>
-                {{end}}
-                </ul>
-              </td>
-            </tr>
-            <tr>
               <th>Dependencies</th>
               <td>
                 <ul class="no-bullet">
                 {{range .D.Dependencies}}
                   <li><a href="/{{.}}">{{.}}</a></li>
-                {{end}}
-                </ul>
-              </td>
-            </tr>
-            <tr>
-              <th>Sources</th>
-              <td>
-                <ul class="no-bullet">
-                {{range .D.Sources}}
-                  <li>{{.}}</li>
                 {{end}}
                 </ul>
               </td>
