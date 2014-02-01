@@ -10,7 +10,16 @@ If you run into trouble installing, get help via the mailing list, or github iss
 
 ## Downloadable Installers
 
-data will be available to install with platform-specific downloadable installers. coming soon.
+<div>
+<img src="/static/osxpkg.png" style="display: inline;"/>
+<a href="https://github.com/jbenet/data/releases/download/v0.1.0/data-v0.1.1-OSX-Installer.pkg" class="btn btn-success btn-lg">
+  <i class="icon-apple"></i> Install Data in Mac OS X
+</a>
+</div>
+
+<div class="alert alert-warning">
+Windows installer coming soon.
+</div>
 
 ## Package Managers
 
