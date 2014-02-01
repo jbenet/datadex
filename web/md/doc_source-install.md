@@ -61,7 +61,7 @@ If any of those commands failed, then you need to install that one (probably `bz
 
 These are available in your favorite package manager. Here are two popular ones:
 
-MacOSX (if you don't have `brew` installed, do yourself a favor and get it from [the Homebrew webpage](http://brew.sh/#install).
+MacOSX (if you don't have `brew` installed, do yourself a favor and get it from [the Homebrew webpage](http://brew.sh/#install)).
 
 ```
 brew install git hg bzr
