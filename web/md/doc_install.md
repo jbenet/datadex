@@ -12,7 +12,7 @@ If you run into trouble installing, get help via the mailing list, or github iss
 
 <div>
 <img src="/static/osxpkg.png" style="display: inline;"/>
-<a href="https://github.com/jbenet/data/releases/download/v0.1.0/data-v0.1.1-OSX-Installer.pkg" class="btn btn-success btn-lg">
+<a href="https://github.com/jbenet/data/releases/download/v0.1.1/data-v0.1.1-OSX-Installer.pkg" class="btn btn-success btn-lg">
   <i class="icon-apple"></i> Install Data in Mac OS X
 </a>
 </div>
@@ -30,9 +30,9 @@ data will be available to install with your favorite software package manager. c
 Download precompiled binaries for various platforms.
 
 - darwin 32-bit (Mac OS X) - coming soon
-- [darwin 64-bit (Mac OS X)](https://github.com/jbenet/data/releases/download/v0.1.0/data-v0.1.0-darwin_amd64.tar.gz)
-- [linux 32-bit](https://github.com/jbenet/data/releases/download/v0.1.0/data-v0.1.0-linux_386.tar.gz)
-- [linux 64-bit](https://github.com/jbenet/data/releases/download/v0.1.0/data-v0.1.0-linux_amd64.tar.gz)
+- [darwin 64-bit (Mac OS X)](https://github.com/jbenet/data/releases/download/v0.1.1/data-v0.1.1-darwin_amd64.tar.gz)
+- [linux 32-bit](https://github.com/jbenet/data/releases/download/v0.1.1/data-v0.1.1-linux_386.tar.gz)
+- [linux 64-bit](https://github.com/jbenet/data/releases/download/v0.1.1/data-v0.1.1-linux_amd64.tar.gz)
 - windows 32-bit - coming soon
 - windows 64-bit - coming soon
 
