@@ -114,7 +114,8 @@ $ data get {{.D.Dataset}}</pre>
           </table>
           <br />
 
-          <div id="ds-readme" class="well">
+          <div id="ds-readme" class="panel panel-default">
+          <div class="panel-body">
           {{if .Readme}}
             {{if .EscapeReadme }}
               {{.Readme}}
@@ -128,6 +129,7 @@ $ data get {{.D.Dataset}}</pre>
           <br />
           Any file named "README", "readme.txt", or "Readme.md" will work.
           {{end}}
+          </div>
           </div>
 
         </div>
