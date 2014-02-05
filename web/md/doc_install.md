@@ -4,6 +4,9 @@
 
 # Install data
 
+All downloads listed below are for data version **0.1.1**.
+For older versions, see https://github.com/jbenet/data/releases
+
 There are many ways to install data. Scroll down to select your preferred method.
 
 If you run into trouble installing, get help via the mailing list, or github issues (see the bottom-right corner of this page).
