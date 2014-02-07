@@ -12,11 +12,13 @@ See the [roadmap](dev/roadmap.md).
 Setup:
 
 1. [install go](http://golang.org/doc/install)
-2. Run:
+2. Then, run:
 
-    git clone https://github.com/jbenet/datadex
-    cd datadex
-    make
+```
+git clone https://github.com/jbenet/datadex
+cd datadex
+make
+```
 
 Run:
 
