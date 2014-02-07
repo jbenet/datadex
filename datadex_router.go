@@ -78,7 +78,6 @@ func setupWebsiteRoutes(r *mux.Router) {
 	// u.HandleFunc("/user/pass", webUserPassHandler).Methods("POST")
 
 	// user/dataset
-	u.HandleFunc("/{dataset}@{ref}", webDsHomeHandler)
 	u.HandleFunc("/{dataset}", webDsHomeHandler)
 	// d := u.PathPrefix("/{dataset}@{ref}").Subrouter()
 	// d.StrictSlash(true)

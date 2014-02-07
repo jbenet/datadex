@@ -122,16 +122,16 @@ type DatasetWebPage struct {
 
 func webDsHomeHandler(w http.ResponseWriter, r *http.Request) {
 	ds := requestDataset(r)
-	ref := mux.Vars(r)["ref"]
+	h := data.NewHandle(ds)
 
-	f, err := indexDB.GetDataset(ds)
+	f, err := indexDB.GetDataset(h.Path())
 	if err != nil {
 		pErr("%s 404 not found\n", ds)
 		http.NotFound(w, r)
 		return
 	}
 
-	ref = f.Refs.ResolveRef(ref)
+	ref := f.Refs.ResolveRef(h.Version)
 	df, err := DatafileForManifestRef(ref)
 	if err != nil {
 		pErr("Error loading Datafile: %s\n", err.Error())
