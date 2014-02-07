@@ -211,7 +211,7 @@ func webListHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch order {
 		case "date-registered":
-			sort.Sort(UsersByDateRegistered(users))
+			sort.Sort(sort.Reverse(UsersByDateRegistered(users)))
 		}
 
 		for _, u := range users {
@@ -227,7 +227,7 @@ func webListHandler(w http.ResponseWriter, r *http.Request) {
 
 		switch order {
 		case "last-updated":
-			sort.Sort(DatasetsByLastUpdated(dsets))
+			sort.Sort(sort.Reverse(DatasetsByLastUpdated(dsets)))
 			// case "downloads":
 			// 	sort.Sort(DByNumDownloads(dsets))
 		}
