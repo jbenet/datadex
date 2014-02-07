@@ -203,8 +203,10 @@ func dsRefHandler(w http.ResponseWriter, r *http.Request) {
 			pErr("%s\n", err)
 			switch {
 			case strings.Contains(err.Error(), "forbidden"):
+				pErr("publishing forbidden: %v\n", err.Error())
 				http.Error(w, "Publishing forbidden.", http.StatusForbidden)
 			default:
+				pErr("Error publishing ref: %.7s, %v\n", ref, err.Error())
 				http.Error(w, "Error publishing ref.", http.StatusInternalServerError)
 			}
 			return
