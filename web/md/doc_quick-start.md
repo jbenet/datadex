@@ -33,6 +33,8 @@ First you need to tell data your name, so that it can properly attribute the dat
 $ data user add <Your Username Here>
 ```
 
+[Learn More: Downloading](TODO)
+
 #### Step 2: Publish!
 
 Data walks you through the steps required to publish a dataset.
@@ -42,3 +44,5 @@ Run the following code:
 # in the directory you want to publish
 $ data publish
 ```
+
+[Learn More: Publishing](TODO)
