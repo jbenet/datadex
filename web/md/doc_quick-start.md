@@ -1,8 +1,8 @@
 ## Quick Start
 
-### Download and Install Data
+### Download and Install
 
-Download and install [the latest version of Data](/doc/install).
+Download and install [the latest version of data](/doc/install).
 <br />
 
 ### Download a Dataset
@@ -37,7 +37,7 @@ $ data user add <Your Username Here>
 
 #### Step 2: Publish!
 
-Data walks you through the steps required to publish a dataset.
+`data` walks you through the steps required to publish a dataset.
 
 Run the following code:
 ```
