@@ -5,48 +5,28 @@
 
 ## Quick Start
 
-First, install data. See [this page](/doc/install) for instructions.
+### Download and Install Data
+
+Download and install [the latest version of Data](/doc/install).
 <br />
 
-### Downloading Datasets
+### Downloading a Dataset
 
-In Short, run:
-
-```
-data get <dataset>
-```
-
-In Long:
-
-To download a dataset, just run `data get <dataset path>`. You can find the dataset path on the dataset webpage:
+For this tutorial, we'll be using the [Zipcodes Example](http://datadex.io/jbenet/zipcodes-example) dataset.
 
 ![](http://jbenet.static.s3.amazonaws.com/d3a80c0b3a1c8dcc9088e9a4e0097b1f548784f6/example-zipcodes-id.png)
 
-In this case, the path is `jbenet/zipcodes-example@1.0`.
-This format (`<owner>/<dataset id>@<version>`) includes:
-
-- the package owner: `jbenet`
-- the dataset id: `zipcodes-example`
-- the dataset version: `1.0`
-
-(You can omit the version -- `data get jbenet/zipcodes-example` -- which will get the latest published version).
-
-So, simply run:
+Download the latest published version:
 
 ```
-> data get jbenet/zipcodes-example@1.0
-Downloading jbenet/zipcodes-example@1.0 from datadex (http://datadex.io/api/v1).
-get blob 8001ee9 .data/Manifest
-get blob 10dcbf5 Datafile
-get blob b6d9e12 README.md
-get blob 4b1da58 zipcode_cities.txt
-get blob b0f41fc zipcode_states.txt
-get blob 8001ee9 .data/Manifest
-
----------
-Installed jbenet/zipcodes-example@1.0 at datasets/jbenet/zipcodes-example@1.0
+data get jbenet/zipcodes-example
 ```
-<br />
+
+Download a specific version:
+
+```
+data get jbenet/zipcodes-example@1.0
+```
 
 ### Publishing Datasets
 
