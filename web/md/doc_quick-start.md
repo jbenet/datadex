@@ -49,6 +49,8 @@ $ data publish
 
 ### Manage Dependencies with a Datafile
 
+It is possible to specify dataset dependencies using a `Datafile`.
+These tell data to download a set of datasets.
 Specify your dependencies in a `Datafile` in your project's root:
 ```
 % cat Datafile
