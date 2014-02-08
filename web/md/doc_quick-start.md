@@ -14,13 +14,13 @@ For this tutorial, we'll be using the [Zipcodes Example](http://datadex.io/jbene
 Download the latest published version of the dataset:
 
 ```
-data get jbenet/zipcodes-example
+$ data get jbenet/zipcodes-example
 ```
 
 Download a specific version of the dataset:
 
 ```
-data get jbenet/zipcodes-example@1.0
+$ data get jbenet/zipcodes-example@1.0
 ```
 
 ### Publish a Dataset
