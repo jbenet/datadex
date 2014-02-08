@@ -48,7 +48,7 @@ Installed jbenet/zipcodes-example@1.0 at datasets/jbenet/zipcodes-example@1.0
 ```
 <br />
 
-### Publishing Datasets
+### Publishing a Dataset
 
 In Short, run:
 
