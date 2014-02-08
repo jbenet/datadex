@@ -29,7 +29,7 @@ $ data get jbenet/zipcodes-example@1.0
 
 #### Step 1: Set up Username
 
-First you need to tell data your name, so that it can properly attribute the datasets you publish.
+First you need to tell `data` your name, so that it can properly attribute the datasets you publish.
 
 ```
 $ data user add <Your Username Here>
