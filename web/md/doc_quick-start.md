@@ -46,3 +46,26 @@ $ data publish
 ```
 
 [Learn More: Publishing](TODO)
+
+### Manage Dependencies with a Datafile
+
+Specify your dependencies in a `Datafile` in your project's root:
+```
+% cat Datafile
+dependencies:
+- jbenet/mnist@1.0
+- jbenet/cifar-10
+- jbenet/cifar-100
+```
+
+To download all of the datasets from your specified sources, run the following code:
+```
+% data get
+...
+---
+Installed jbenet/mnist@1.0 at datasets/jbenet/mnist@1.0
+Installed jbenet/cifar-10@1.0 at datasets/jbenet/cifar-10@1.0
+Installed jbenet/cifar-100@1.0 at datasets/jbenet/cifar-100@1.0
+```
+[Learn More: Datafiles](TODO)
+
