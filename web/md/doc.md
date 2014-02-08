@@ -10,7 +10,7 @@
 Download and install [the latest version of Data](/doc/install).
 <br />
 
-### Downloading a Dataset
+### Download a Dataset
 
 For this tutorial, we'll be using the [Zipcodes Example](http://datadex.io/jbenet/zipcodes-example) dataset.
 
@@ -28,7 +28,7 @@ Download a specific version:
 data get jbenet/zipcodes-example@1.0
 ```
 
-### Publishing a Dataset
+### Publish a Dataset
 
 #### Step 1: Set up Username
 
