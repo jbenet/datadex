@@ -23,6 +23,8 @@ Download a specific version of the dataset:
 $ data get jbenet/zipcodes-example@1.0
 ```
 
+[Learn More: Downloading](TODO)
+
 ### Publish a Dataset
 
 #### Step 1: Set up Username
@@ -32,8 +34,6 @@ First you need to tell data your name, so that it can properly attribute the dat
 ```
 $ data user add <Your Username Here>
 ```
-
-[Learn More: Downloading](TODO)
 
 #### Step 2: Publish!
 
