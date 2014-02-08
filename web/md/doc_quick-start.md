@@ -35,6 +35,9 @@ $ data user add <Your Username Here>
 
 #### Step 2: Publish!
 
+Data walks you through the steps required to publish a dataset.
+
+Run the following code:
 ```
 # in the directory you want to publish
 $ data publish
