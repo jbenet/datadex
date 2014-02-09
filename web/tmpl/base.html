@@ -146,10 +146,17 @@
         </ul>
       </div>
       <div>
+        <script type="text/javascript">
+        $(document).ready(function () {
+          var params = "?body=%0A%0A%0AReported from " + window.location.href;
+          var $link = $('#new-issue')
+          $link.attr('href', $link.attr('href') + params);
+        });
+        </script>
         <h5>Questions, feedback, feature requests?</h5>
         <ul class="links no-bullet">
           <li><a href="https://twitter.com/intent/user?screen_name=juanbenet" target="_blank"><i class="icon-twitter"></i> @juanbenet</a></li>
-          <li><a ng-href="https://github.com/jbenet/datadex/issues/new?body='\n\nFrom '+currentURL|encodeURIComponent" target="_blank"><i class="icon-github"></i> jbenet/datadex</a></li>
+          <li><a href="https://github.com/jbenet/datadex/issues/new" id="new-issue" target="_blank"><i class="icon-github"></i> jbenet/datadex</a></li>
           <li><a href="https://groups.google.com/forum/#!forum/data-discuss" target="_blank"><i class="icon-envelope"></i> data-discuss@googlegroups.com</a></li>
         </ul>
       </div>
