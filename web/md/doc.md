@@ -3,20 +3,12 @@
 
 # Documentation
 
-## Quick Start
+<div class="alert alert-success">
+<i class="icon-flag"></i>
+We recommend you first see: <a href="/doc/quick-start">Quick Start</a>.
+</div>
 
-First, install data. See [this page](/doc/install) for instructions.
-<br />
-
-### Downloading Datasets
-
-In Short, run:
-
-```
-data get <dataset>
-```
-
-In Long:
+### Downloading a Dataset
 
 To download a dataset, just run `data get <dataset path>`. You can find the dataset path on the dataset webpage:
 
@@ -48,17 +40,7 @@ Installed jbenet/zipcodes-example@1.0 at datasets/jbenet/zipcodes-example@1.0
 ```
 <br />
 
-### Publishing Datasets
-
-In Short, run:
-
-```
-# in the directory you want to publish
-data user add <username>
-data publish
-```
-
-In Long:
+### Publishing a Dataset
 
 To upload and publish a dataset, follow these steps:
 

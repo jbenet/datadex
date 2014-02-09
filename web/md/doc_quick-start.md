@@ -3,7 +3,6 @@
 ### Download and Install
 
 Download and install [the latest version of data](/doc/install).
-<br />
 
 ### Download a Dataset
 
@@ -23,7 +22,7 @@ Download a specific version of the dataset:
 $ data get jbenet/zipcodes-example@1.0
 ```
 
-[Learn More: Downloading](TODO)
+[Learn More: Downloading](/doc#toc_1)
 
 ### Publish a Dataset
 
@@ -40,18 +39,20 @@ $ data user add <Your Username Here>
 `data` walks you through the steps required to publish a dataset.
 
 Run the following code:
+
 ```
 # in the directory you want to publish
 $ data publish
 ```
 
-[Learn More: Publishing](TODO)
+[Learn More: Publishing](/doc#toc_2)
 
 ### Manage Dependencies with a Datafile
 
 It is possible to specify dataset dependencies using a `Datafile`.
 These tell data to download a set of datasets.
 Specify your dependencies in a `Datafile` in your project's root:
+
 ```
 % cat Datafile
 dependencies:
@@ -61,6 +62,7 @@ dependencies:
 ```
 
 To download all of the datasets from your specified sources, run the following code:
+
 ```
 % data get
 ...
@@ -69,5 +71,5 @@ Installed jbenet/mnist@1.0 at datasets/jbenet/mnist@1.0
 Installed jbenet/cifar-10@1.0 at datasets/jbenet/cifar-10@1.0
 Installed jbenet/cifar-100@1.0 at datasets/jbenet/cifar-100@1.0
 ```
-[Learn More: Datafiles](TODO)
+[Learn More: Datafiles](/doc#toc_3)
 
