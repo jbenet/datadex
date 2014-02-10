@@ -96,6 +96,8 @@ func webUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sort.Sort(sort.Reverse(DatasetsByLastUpdated(pkgs)))
+
 	webRenderPage(w, r, userTmplName, &WebPage{
 		Title: u.User(),
 		Description: fmt.Sprintf("%s has published %d datasets",
