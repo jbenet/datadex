@@ -274,9 +274,10 @@ func webRenderPage(w http.ResponseWriter, r *http.Request,
 }
 
 func webConfigHandler(w http.ResponseWriter, r *http.Request) {
-	esurl := data.ConfigGetString("db.elasticsearch", "http://localhost:9200/datadex")
+	// esurl := data.ConfigGetString("db.elasticsearch", "http://localhost:9200/datadex")
 	config := map[string]interface{}{
-		"ELASTICSEARCH_URL": esurl,
+		// "ELASTICSEARCH_URL": esurl,
+		"ELASTICSEARCH_URL": "/search/datadex", // use proxy pass
 	}
 
 	out, err := json.Marshal(config)
